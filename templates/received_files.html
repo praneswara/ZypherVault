@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Received Files</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <style>
+      .file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+      }
+      .file-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .file-card:hover {
+        transform: translateY(-5px);
+      }
+      .file-icon {
+        font-size: 48px;
+        color: #007bff;
+        margin-bottom: 10px;
+      }
+      .file-name {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 10px;
+        word-wrap: break-word;
+      }
+      .file-link,
+      .btn-action {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+        margin-top: 5px;
+        width: 100%;
+        text-align: center;
+      }
+      .file-link {
+        background-color: #007bff;
+        color: #fff;
+      }
+      .file-link:hover {
+        background-color: #0056b3;
+      }
+      .btn-save {
+        background-color: #28a745;
+        color: white;
+        border: none;
+      }
+      .btn-save:hover {
+        background-color: #218838;
+      }
+      .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+      }
+      .btn-delete:hover {
+        background-color: #c82333;
+      }
+      .status-text {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 8px;
+      }
+      .actions {
+        width: 100%;
+        display: flex;
+        gap: 5px;
+        flex-direction: column;
+      }
+      .footer-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Received Files</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+
+      <div class="file-grid">
+    {% for file in received_files %}
+    <div class="file-card">
+        <div class="file-icon">📄</div>
+        <div class="file-name">{{ file.filename }}</div>
+        {% if file.status == 'pending' %}
+            <div class="status-text">Status: Pending</div>
+            <a href="{{ url_for('request_enter_file_password', shared_file_id=file._id) }}" class="file-link">
+                Request Access
+            </a>
+        {% elif file.status == 'in_progress' %}
+            <div class="status-text">Status: In Progress</div>
+        {% elif file.status == 'approved' %}
+            <a href="{{ url_for('download_file_with_status_check', filename=file.filename) }}" class="file-link">
+                View / Download
+            </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+
+      <!-- Footer Actions -->
+      <div class="footer-actions">
+        <a href="{{ url_for('home') }}">Back to Dashboard</a>
+      </div>
+    </div>
+  </body>
+</html>

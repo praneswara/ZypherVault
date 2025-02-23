@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <style>
+      /* Ensure all dashboard items are arranged in a single column */
+      .btn-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+      /* Uniform container for each dashboard button */
+      .dashboard-item {
+        position: relative;
+        width: 80%;
+        text-align: center;
+      }
+      .dashboard-item .btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+      }
+      .dashboard-item .btn:hover {
+        background-color: #0056b3;
+      }
+      /* Indicator dots */
+      .indicator-left {
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        background-color: green;
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .indicator-right {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: red;
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Dashboard</h1>
+      <div class="btn-container">
+        <div class="dashboard-item">
+          <a href="{{ url_for('upload_file') }}" class="btn">Upload File</a>
+        </div>
+        <div class="dashboard-item">
+          <a href="{{ url_for('list_files') }}" class="btn">My Files</a>
+        </div>
+        <div class="dashboard-item">
+          <a href="{{ url_for('share') }}" class="btn">Share File</a>
+        </div>
+        <!-- Received Files: Green indicator on top-left and Red on top-right -->
+        <div class="dashboard-item">
+          <a href="{{ url_for('received_files') }}" class="btn">Received Files</a>
+          {% if unread_approved > 0 %}
+            <span class="indicator-left">{{ unread_approved }}</span>
+          {% endif %}
+          {% if unread_pending > 0 %}
+            <span class="indicator-right">{{ unread_pending }}</span>
+          {% endif %}
+        </div>
+        <!-- Notifications: Red indicator on top-right -->
+        <div class="dashboard-item">
+          <a href="{{ url_for('notifications') }}" class="btn">Notifications</a>
+          {% if unread_count > 0 %}
+            <span class="indicator-right">{{ unread_count }}</span>
+          {% endif %}
+        </div>
+        <div class="dashboard-item">
+          <a href="{{ url_for('reset_file_password_options') }}" class="btn">Reset File Password</a>
+        </div>
+        <div class="dashboard-item">
+          <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -3,16 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZypherVault</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - Secure File Storage</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
   </head>
   <body>
-    <div class="container">
-      <h1>Welcome to ZypherVault</h1>
-      <div class="btn-container">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="logo-container">
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="ZypherVault Logo"
+          class="logo"
+        />
+        <span class="app-name">ZypherVault</span>
+      </div>
+      <div class="nav-links">
         <a href="{{ url_for('register') }}" class="btn">Register</a>
         <a href="{{ url_for('login') }}" class="btn">Login</a>
+        <button class="toggle-btn" id="theme-toggle">🌙</button>
       </div>
+    </nav>
+    
+
+    <!-- Main Content -->
+    <div class="container">
+      <h1>Welcome to ZypherVault</h1>
+      <p>
+        ZypherVault is your **secure and encrypted cloud-based file storage
+        solution**, designed for seamless file sharing and access control.
+      </p>
+
+      <!-- About Section -->
+      <section class="about">
+        <h2>Why Choose ZypherVault?</h2>
+        <p>
+          Our platform ensures that your files remain **safe, private, and
+          accessible only to authorized users**. Whether you're an individual or
+          a business, we provide advanced security features for **hassle-free
+          file management**.
+        </p>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features">
+        <h2>Key Features</h2>
+        <ul>
+          <li>
+            🔒 **AES-256 Encryption** – Protects files from unauthorized access.
+          </li>
+          <li>📁 **Cloud Storage** – Access your files anytime, anywhere.</li>
+          <li>
+            🔄 **File Sharing & Access Control** – Manage who can view or
+            download your data.
+          </li>
+          <li>
+            📊 **Activity Logs & Notifications** – Track uploads, downloads, and
+            access requests.
+          </li>
+          <li>🚀 **Fast & Reliable** – Optimized for speed and efficiency.</li>
+        </ul>
+      </section>
+
+      <!-- Security Section -->
+      <section class="security">
+        <h2>Security & Privacy</h2>
+        <p>
+          At ZypherVault, **security is our top priority**. We use **end-to-end
+          encryption, multi-factor authentication (MFA), and granular permission
+          controls** to keep your files protected.
+        </p>
+      </section>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        <a href="#">Contact</a> | <a href="#">Support</a> |
+        <a href="#">Terms & Conditions</a>
+      </p>
+    </footer>
   </body>
 </html>

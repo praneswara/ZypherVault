@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
       /* Ensure all dashboard items are arranged in a single column */
       .btn-container {
@@ -71,23 +74,26 @@
         </div>
         <!-- Received Files: Green indicator on top-left and Red on top-right -->
         <div class="dashboard-item">
-          <a href="{{ url_for('received_files') }}" class="btn">Received Files</a>
+          <a href="{{ url_for('received_files') }}" class="btn"
+            >Received Files</a
+          >
           {% if unread_approved > 0 %}
-            <span class="indicator-left">{{ unread_approved }}</span>
-          {% endif %}
-          {% if unread_pending > 0 %}
-            <span class="indicator-right">{{ unread_pending }}</span>
+          <span class="indicator-left">{{ unread_approved }}</span>
+          {% endif %} {% if unread_pending > 0 %}
+          <span class="indicator-right">{{ unread_pending }}</span>
           {% endif %}
         </div>
         <!-- Notifications: Red indicator on top-right -->
         <div class="dashboard-item">
           <a href="{{ url_for('notifications') }}" class="btn">Notifications</a>
           {% if unread_count > 0 %}
-            <span class="indicator-right">{{ unread_count }}</span>
+          <span class="indicator-right">{{ unread_count }}</span>
           {% endif %}
         </div>
         <div class="dashboard-item">
-          <a href="{{ url_for('reset_file_password_options') }}" class="btn">Reset File Password</a>
+          <a href="{{ url_for('reset_file_password_options') }}" class="btn"
+            >Reset File Password</a
+          >
         </div>
         <div class="dashboard-item">
           <a href="{{ url_for('logout') }}" class="btn">Logout</a>
@@ -95,4 +101,19 @@
       </div>
     </div>
   </body>
+  <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+  <script>
+    var socket = io();
+    socket.on('update', function(data) {
+      if(data.notifications !== undefined) {
+        document.getElementById('notifCount').textContent = data.notifications;
+      }
+      if(data.pending !== undefined) {
+        document.getElementById('pendingCount').textContent = data.pending;
+      }
+      if(data.approved !== undefined) {
+        document.getElementById('approvedCount').textContent = data.approved;
+      }
+    });
+  </script>
 </html>

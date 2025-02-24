@@ -30,6 +30,7 @@ from bson.objectid import ObjectId
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Protocol.KDF import PBKDF2
+from flask_socketio import SocketIO
 
 # ---------------------- Configuration ---------------------- #
 
@@ -49,6 +50,7 @@ app.config.update(
     MAIL_PASSWORD='spkl ysud nygk xkne'
 )
 mail = Mail(app)
+socketio = SocketIO(app)
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 file_reset_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
@@ -63,6 +65,22 @@ access_requests = db['access_requests']
 shared_files = db['shared_files']
 
 # ---------------------- Helper Functions ---------------------- #
+
+# ----- Helper Function to Broadcast Updates -----
+def broadcast_updates():
+    """
+    Gather updated counts and emit them to all connected clients.
+    This should be called right after any change in notifications or file statuses.
+    """
+    if 'username' in session:
+        username = session['username']
+        data = {
+            "notifications": access_requests.count_documents({'sender': username, 'read': False}),
+            "pending": shared_files.count_documents({'recipient_username': username, 'status': 'pending', 'read_pending': False}),
+            "approved": shared_files.count_documents({'recipient_username': username, 'status': 'approved', 'read_approved': False})
+        }
+        socketio.emit('update', data, broadcast=True)
+
 
 def derive_key(password, salt):
     return PBKDF2(password, salt, dkLen=32)
@@ -139,18 +157,98 @@ def reencrypt_user_files(username, old_file_password, new_file_password):
 def index():
     return render_template('index.html')
 
+# ----- Registration Route -----
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Register a new user and then prompt for file password."""
+    """Register a new user, send confirmation email, and redirect to email confirmation page."""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
+
+        # First, check if the username already exists.
+        if db.users.find_one({'username': username}):
+            flash("Username already taken.", "error")
+            return render_template('register.html')
+        
+        # Then, check if the email is already registered.
+        if db.users.find_one({'email': email}):
+            flash("Email already registered.", "error")
+            return render_template('register.html')
+        
         hashed_pw = generate_password_hash(password)
-        db.users.insert_one({'username': username, 'password': hashed_pw, 'email': email})
+        # Insert new user with email_verified set to False.
+        db.users.insert_one({
+            'username': username,
+            'password': hashed_pw,
+            'email': email,
+            'email_verified': False
+        })
+
+        # Store username and email in session for later use.
         session['username'] = username
-        return redirect(url_for('set_file_password'))
+        session['email'] = email
+
+        # Generate confirmation token.
+        token = serializer.dumps(email, salt='email-confirm-salt')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        
+        # Send confirmation email using your original content.
+        msg = Message("Confirm Your Email – ZypherVault",
+                      sender=app.config['MAIL_USERNAME'],
+                      recipients=[email])
+        msg.body = f"""Dear {username},
+
+We received a request to register with ZypherVault.
+Please confirm your email by visiting the following link:
+{confirm_url}
+
+If you didn’t register, you can safely ignore this email. This link will expire in 60 minutes for security reasons.
+
+Stay secure,
+The ZypherVault Team
+"""
+        msg.html = f"""
+<html>
+  <body>
+    <p>Dear {username},</p>
+    <p>We received a request to register with ZypherVault. Please confirm your email by clicking the button below:</p>
+    <p style="text-align: center;">
+      <a href="{confirm_url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm Email</a>
+    </p>
+    <p>If you didn’t register, you can safely ignore this email. This link will expire in 60 minutes for security reasons.</p>
+    <p>Stay secure,<br>The ZypherVault Team</p>
+  </body>
+</html>
+"""
+        mail.send(msg)
+        flash("A confirmation email has been sent. Please check your email.", "success")
+        return redirect(url_for('email_confirmation', email=email))
     return render_template('register.html')
+
+
+
+# ----- Confirm Email Route -----
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    """Marks the user's email as verified when they click the link in the email."""
+    try:
+        email = serializer.loads(token, salt='email-confirm-salt', max_age=3600)
+    except (SignatureExpired, BadSignature):
+        return "The confirmation link is invalid or has expired.", 400
+    
+    db.users.update_one({'email': email}, {'$set': {'email_verified': True}})
+    # Return a simple message; the user can close this tab.
+    return "Email confirmed successfully. You may now close this tab."
+
+@app.route('/check_verification')
+def check_verification():
+    email = request.args.get('email')
+    user = db.users.find_one({'email': email})
+    if user and user.get('email_verified'):
+        return {"verified": True}
+    return {"verified": False}
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -160,11 +258,16 @@ def login():
         password = request.form['password']
         user = db.users.find_one({'username': username})
         if user and check_password_hash(user['password'], password):
+            if not user.get('email_verified', False):
+                flash("Please verify your email before logging in.", "error")
+                return redirect(url_for('login'))
             session['username'] = username
+            session['user_id'] = str(user['_id'])
             return redirect(url_for('home'))
         else:
             flash("Invalid credentials", "error")
     return render_template('login.html')
+
 
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password_request():
@@ -646,10 +749,10 @@ def share():
             'filename': filename,
             'gridfs_id': file_meta['gridfs_id'],
             'status': 'pending',
-            'sender_file_password': file_password,  # Plaintext for demo only
             'read_pending': False,
             'read_approved': False
         })
+        broadcast_updates()
         flash(f"File shared with {recipient_username}.", "success")
     return render_template('share.html', user_files=user_files)
 
@@ -711,14 +814,16 @@ def notifications():
 
 @app.route('/allow_access/<notification_id>', methods=['POST'])
 def allow_access(notification_id):
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    notif = db.access_requests.find_one({'_id': ObjectId(notification_id)})
-    shared_file_id = notif['shared_file_id']
-    db.shared_files.update_one({'_id': ObjectId(shared_file_id)}, {'$set': {'status': 'approved'}})
-    db.access_requests.delete_one({'_id': ObjectId(notification_id)})
-    flash("Access approved.", "success")
+    # (Your existing logic to approve a notification goes here.)
+    # For example:
+    notification = access_requests.find_one({"_id": ObjectId(notification_id)})
+    if notification:
+        access_requests.update_one({"_id": ObjectId(notification_id)}, {"$set": {"status": "approved", "read": True}})
+        flash("Access approved.", "success")
+        # Broadcast updates after modifying the database
+        broadcast_updates()
     return redirect(url_for('notifications'))
+
 
 @app.route('/deny_access/<notification_id>', methods=['POST'])
 def deny_access(notification_id):
@@ -729,6 +834,7 @@ def deny_access(notification_id):
     db.shared_files.update_one({'_id': ObjectId(shared_file_id)}, {'$set': {'status': 'pending'}})
     db.access_requests.delete_one({'_id': ObjectId(notification_id)})
     flash("Access request denied.", "success")
+    broadcast_updates()
     return redirect(url_for('notifications'))
 
 @app.route('/download_file_with_status_check/<filename>', methods=['GET', 'POST'])
@@ -798,4 +904,5 @@ def get_file(filename):
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+

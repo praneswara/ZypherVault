@@ -4,3 +4,4 @@ pycryptodome==3.21.0
 dnspython==2.7.0
 Flask-Mail==0.10.0
 itsdangerous>=2.2
+flask-socketio

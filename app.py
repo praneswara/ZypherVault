@@ -166,18 +166,17 @@ def register():
         password = request.form['password']
         email = request.form['email']
 
-        # First, check if the username already exists.
+        # Check if the username or email is already taken
         if db.users.find_one({'username': username}):
             flash("Username already taken.", "error")
             return render_template('register.html')
-        
-        # Then, check if the email is already registered.
+
         if db.users.find_one({'email': email}):
             flash("Email already registered.", "error")
             return render_template('register.html')
-        
+
+        # Hash password and insert user into the database
         hashed_pw = generate_password_hash(password)
-        # Insert new user with email_verified set to False.
         db.users.insert_one({
             'username': username,
             'password': hashed_pw,
@@ -185,15 +184,15 @@ def register():
             'email_verified': False
         })
 
-        # Store username and email in session for later use.
+        # Store user session data
         session['username'] = username
         session['email'] = email
 
-        # Generate confirmation token.
+        # Generate email confirmation token
         token = serializer.dumps(email, salt='email-confirm-salt')
         confirm_url = url_for('confirm_email', token=token, _external=True)
-        
-        # Send confirmation email using your original content.
+
+        # Send confirmation email
         msg = Message("Confirm Your Email – ZypherVault",
                       sender=app.config['MAIL_USERNAME'],
                       recipients=[email])
@@ -222,8 +221,11 @@ The ZypherVault Team
 </html>
 """
         mail.send(msg)
+
+        # ✅ Redirect to email confirmation page (NOT confirm_email)
         flash("A confirmation email has been sent. Please check your email.", "success")
-        return redirect(url_for('email_confirmation', email=email))
+        return render_template('email_confirmation.html', email=email)
+
     return render_template('register.html')
 
 
@@ -240,6 +242,49 @@ def confirm_email(token):
     db.users.update_one({'email': email}, {'$set': {'email_verified': True}})
     # Return a simple message; the user can close this tab.
     return "Email confirmed successfully. You may now close this tab."
+
+@app.route('/resend_confirmation', methods=['GET'])
+def resend_confirmation():
+    """Resend the email confirmation link."""
+    if 'email' not in session:
+        flash("No email found in session. Please register again.", "error")
+        return redirect(url_for('register'))
+
+    email = session['email']
+    user = db.users.find_one({'email': email})
+
+    if not user:
+        flash("User not found. Please register again.", "error")
+        return redirect(url_for('register'))
+
+    if user.get('email_verified'):
+        flash("Your email is already verified.", "success")
+        return redirect(url_for('login'))
+
+    # Generate a new confirmation token
+    token = serializer.dumps(email, salt='email-confirm-salt')
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+
+    # Send confirmation email
+    msg = Message("Confirm Your Email – ZypherVault",
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[email])
+    msg.body = f"""Dear {user['username']},
+
+We received a request to verify your email.
+Please confirm your email by clicking the link below:
+{confirm_url}
+
+If you didn’t request this, you can safely ignore this email.
+
+Stay secure,
+The ZypherVault Team
+"""
+    mail.send(msg)
+
+    flash("A new confirmation email has been sent.", "success")
+    return render_template('email_confirmation.html', email=email)
+
 
 @app.route('/check_verification')
 def check_verification():

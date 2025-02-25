@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Received Files</title>
+    <title>ZypherVault - Received Files</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
@@ -106,26 +111,31 @@
       {% endif %} {% endwith %}
 
       <div class="file-grid">
-    {% for file in received_files %}
-    <div class="file-card">
-        <div class="file-icon">📄</div>
-        <div class="file-name">{{ file.filename }}</div>
-        {% if file.status == 'pending' %}
-            <div class="status-text">Status: Pending</div>
-            <a href="{{ url_for('request_enter_file_password', shared_file_id=file._id) }}" class="file-link">
-                Request Access
-            </a>
-        {% elif file.status == 'in_progress' %}
-            <div class="status-text">Status: In Progress</div>
-        {% elif file.status == 'approved' %}
-            <a href="{{ url_for('download_file_with_status_check', filename=file.filename) }}" class="file-link">
-                View / Download
-            </a>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
-
+        {% for file in received_files %}
+        <div class="file-card">
+          <div class="file-icon">📄</div>
+          <div class="file-name">{{ file.filename }}</div>
+          {% if file.status == 'pending' %}
+          <div class="status-text">Status: Pending</div>
+          <a
+            href="{{ url_for('request_enter_file_password', shared_file_id=file._id) }}"
+            class="file-link"
+          >
+            Request Access
+          </a>
+          {% elif file.status == 'in_progress' %}
+          <div class="status-text">Status: In Progress</div>
+          {% elif file.status == 'approved' %}
+          <a
+            href="{{ url_for('download_file_with_status_check', filename=file.filename) }}"
+            class="file-link"
+          >
+            View / Download
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
 
       <!-- Footer Actions -->
       <div class="footer-actions">

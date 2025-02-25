@@ -3,8 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Files</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - My Files</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
       /* Header (for page title) */
       h1 {
@@ -96,15 +104,30 @@
   <body>
     <div class="container">
       <h1>My Files</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
       <div class="file-grid">
         {% for file in user_files %}
         <div class="file-card">
           <div class="file-icon">📄</div>
           <div class="file-name">{{ file.filename }}</div>
-          <a href="{{ url_for('download_file', filename=file.filename) }}" class="file-link">
+          <a
+            href="{{ url_for('download_file', filename=file.filename) }}"
+            class="file-link"
+          >
             View / Download
           </a>
-          <form action="{{ url_for('soft_delete_file', file_id=file._id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this file? It will be moved to Restore Items for 30 days.');">
+          <form
+            action="{{ url_for('soft_delete_file', file_id=file._id) }}"
+            method="post"
+            onsubmit="return confirm('Are you sure you want to delete this file? It will be moved to Restore Items for 30 days.');"
+          >
             <button type="submit" class="btn-delete">Delete</button>
           </form>
         </div>

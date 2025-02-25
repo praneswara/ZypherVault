@@ -3,8 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restore Deleted Files</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - Restore Deleted Files</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
       /* Page Container */
       .container {
@@ -32,7 +40,7 @@
         border-radius: 8px;
         padding: 15px;
         text-align: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s ease;
       }
       .file-card:hover {
@@ -62,7 +70,8 @@
       .action-buttons form {
         flex: 1;
       }
-      .restore-btn, .permanent-delete-btn {
+      .restore-btn,
+      .permanent-delete-btn {
         width: 100%;
         padding: 8px;
         border: none;
@@ -120,7 +129,9 @@
       }
       /* Responsive adjustments */
       @media (max-width: 480px) {
-        .restore-btn, .permanent-delete-btn, .footer-nav button {
+        .restore-btn,
+        .permanent-delete-btn,
+        .footer-nav button {
           font-size: 14px;
           padding: 6px;
         }
@@ -133,7 +144,15 @@
   <body>
     <div class="container">
       <h1>Restore Items</h1>
-      <h2 style="text-align:center;">Deleted Files (Restore within 30 days)</h2>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+      <h2 style="text-align: center">Deleted Files (Restore within 30 days)</h2>
       <div class="file-grid">
         {% for file in deleted_files %}
         <div class="file-card">
@@ -143,10 +162,18 @@
             {{ file.days_remaining }} day(s) remaining
           </div>
           <div class="action-buttons">
-            <form action="{{ url_for('restore_file', file_id=file._id) }}" method="post" onsubmit="return confirm('Restore this file?');">
+            <form
+              action="{{ url_for('restore_file', file_id=file._id) }}"
+              method="post"
+              onsubmit="return confirm('Restore this file?');"
+            >
               <button type="submit" class="restore-btn">Restore</button>
             </form>
-            <form action="{{ url_for('permanent_delete_file', file_id=file._id) }}" method="post" onsubmit="return confirm('Permanently delete this file?');">
+            <form
+              action="{{ url_for('permanent_delete_file', file_id=file._id) }}"
+              method="post"
+              onsubmit="return confirm('Permanently delete this file?');"
+            >
               <button type="submit" class="permanent-delete-btn">Delete</button>
             </form>
           </div>
@@ -156,7 +183,11 @@
       <!-- Footer navigation: Back to MyFiles on left, Delete All on right -->
       <div class="footer-nav">
         <a href="{{ url_for('list_files') }}">Back to MyFiles</a>
-        <form action="{{ url_for('delete_all_restore') }}" method="post" onsubmit="return confirm('Are you sure you want to permanently delete all items in Restore Items?');">
+        <form
+          action="{{ url_for('delete_all_restore') }}"
+          method="post"
+          onsubmit="return confirm('Are you sure you want to permanently delete all items in Restore Items?');"
+        >
           <button type="submit">Delete All</button>
         </form>
       </div>

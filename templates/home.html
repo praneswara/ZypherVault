@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Dashboard</title>
+    <title>ZypherVault - Dashboard</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
@@ -62,6 +67,14 @@
   <body>
     <div class="container">
       <h1>Dashboard</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
       <div class="btn-container">
         <div class="dashboard-item">
           <a href="{{ url_for('upload_file') }}" class="btn">Upload File</a>
@@ -104,15 +117,15 @@
   <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
   <script>
     var socket = io();
-    socket.on('update', function(data) {
-      if(data.notifications !== undefined) {
-        document.getElementById('notifCount').textContent = data.notifications;
+    socket.on("update", function (data) {
+      if (data.notifications !== undefined) {
+        document.getElementById("notifCount").textContent = data.notifications;
       }
-      if(data.pending !== undefined) {
-        document.getElementById('pendingCount').textContent = data.pending;
+      if (data.pending !== undefined) {
+        document.getElementById("pendingCount").textContent = data.pending;
       }
-      if(data.approved !== undefined) {
-        document.getElementById('approvedCount').textContent = data.approved;
+      if (data.approved !== undefined) {
+        document.getElementById("approvedCount").textContent = data.approved;
       }
     });
   </script>

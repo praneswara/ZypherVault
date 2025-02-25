@@ -2,27 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Upload File</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - Upload File</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
     <div class="container">
       <h1>Upload File</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="messages">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+      <form
+        action="{{ url_for('upload_file') }}"
+        method="post"
+        enctype="multipart/form-data"
+      >
         <label for="file">Choose File:</label>
         <input type="file" id="file" name="file" required />
         <label for="file_password">Enter your File Password:</label>
-        <input type="password" id="file_password" name="file_password" required />
+        <input
+          type="password"
+          id="file_password"
+          name="file_password"
+          required
+        />
         <input type="submit" value="Upload" />
       </form>
       <a href="{{ url_for('home') }}">Back to Dashboard</a>

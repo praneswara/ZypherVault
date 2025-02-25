@@ -3,8 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notifications</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - Notifications</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
       /* Container for each notification card */
       .notification-item {
@@ -13,7 +21,7 @@
         padding: 15px;
         margin-bottom: 15px;
         background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       /* Notification details */
       .notification-info {
@@ -31,7 +39,8 @@
         flex: 1;
       }
       /* Button styles */
-      .btn-allow, .btn-deny {
+      .btn-allow,
+      .btn-deny {
         width: 100%;
         padding: 10px;
         border: none;
@@ -59,7 +68,8 @@
         .notification-info {
           font-size: 14px;
         }
-        .btn-allow, .btn-deny {
+        .btn-allow,
+        .btn-deny {
           font-size: 14px;
           padding: 8px;
         }
@@ -69,26 +79,29 @@
   <body>
     <div class="container">
       <h1>Notifications</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="messages">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      
-      {% for notif in notifications %}
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %} {% for notif in notifications %}
       <div class="notification-item">
         <div class="notification-info">
           <p>From: {{ notif.sender }} - File: {{ notif.filename }}</p>
         </div>
         <div class="notification-actions">
-          <form action="{{ url_for('allow_access', notification_id=notif._id) }}" method="post">
+          <form
+            action="{{ url_for('allow_access', notification_id=notif._id) }}"
+            method="post"
+          >
             <button type="submit" class="btn-allow">Accept</button>
           </form>
-          <form action="{{ url_for('deny_access', notification_id=notif._id) }}" method="post">
+          <form
+            action="{{ url_for('deny_access', notification_id=notif._id) }}"
+            method="post"
+          >
             <button type="submit" class="btn-deny">Reject</button>
           </form>
         </div>

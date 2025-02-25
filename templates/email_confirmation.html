@@ -3,8 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email Confirmation</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <title>ZypherVault - Email Confirmation</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <style>
       .container {
         width: 90%;
@@ -15,7 +23,7 @@
         border: 1px solid #ddd;
         border-radius: 8px;
         background: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       .status {
         font-size: 18px;
@@ -31,7 +39,9 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
       .checkmark {
         font-size: 48px;
@@ -66,28 +76,28 @@
       function pollVerification() {
         var email = "{{ email }}";
         fetch("/check_verification?email=" + encodeURIComponent(email))
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             if (data.verified) {
               // Stop polling, show the checkmark, and redirect after 2 seconds.
               clearInterval(pollInterval);
               document.getElementById("spinner").style.display = "none";
               document.getElementById("checkmark").style.display = "block";
-              setTimeout(function() {
+              setTimeout(function () {
                 window.location.href = "{{ url_for('set_file_password') }}";
               }, 2000);
             }
           })
-          .catch(error => console.error('Error:', error));
+          .catch((error) => console.error("Error:", error));
       }
 
       // Start polling every 5 seconds.
       var pollInterval = setInterval(pollVerification, 5000);
 
       // After 60 seconds, show the resend confirmation form.
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          document.getElementById('resendForm').style.display = 'block';
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          document.getElementById("resendForm").style.display = "block";
         }, 60000);
       });
     </script>
@@ -95,29 +105,42 @@
   <body>
     <div class="container">
       <h1>Email Confirmation</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="messages">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      
-      {% if email %}
-        <p>A confirmation email has been sent to <strong>{{ email }}</strong>. Please check your inbox and click the confirmation link.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %} {% if email %}
+      <p>
+        A confirmation email has been sent to <strong>{{ email }}</strong>.
+        Please check your inbox and click the confirmation link.
+      </p>
       {% else %}
-        <p>Please enter your registered email to resend the confirmation email.</p>
+      <p>
+        Please enter your registered email to resend the confirmation email.
+      </p>
       {% endif %}
-      
+
       <div id="spinner" class="spinner"></div>
       <div id="checkmark" class="checkmark">✓</div>
-      
+
       <!-- Resend Confirmation Form, hidden initially -->
-      <form id="resendForm" class="resend-form" action="{{ url_for('resend_confirmation') }}" method="post">
-        <input type="email" name="email" value="{{ email }}" required placeholder="Enter your correct email">
-        <br>
+      <form
+        id="resendForm"
+        class="resend-form"
+        action="{{ url_for('resend_confirmation') }}"
+        method="post"
+      >
+        <input
+          type="email"
+          name="email"
+          value="{{ email }}"
+          required
+          placeholder="Enter your correct email"
+        />
+        <br />
         <button type="submit" class="btn">Resend Confirmation</button>
       </form>
     </div>

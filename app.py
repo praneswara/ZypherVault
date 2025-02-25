@@ -206,7 +206,6 @@ The ZypherVault Team
 """
         mail.send(msg)
 
-        # ✅ Redirect to email confirmation page (NOT confirm_email)
         flash("A confirmation email has been sent. Please check your email.", "success")
         return render_template('email_confirmation.html', email=email)
 
@@ -227,7 +226,7 @@ def confirm_email(token):
     # Return a simple message; the user can close this tab.
     return "Email confirmed successfully. You may now close this tab."
 
-@app.route('/resend_confirmation', methods=['GET'])
+@app.route('/resend_confirmation', methods=['POST'])
 def resend_confirmation():
     """Resend the email confirmation link."""
     if 'email' not in session:

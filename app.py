@@ -30,7 +30,6 @@ from bson.objectid import ObjectId
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Protocol.KDF import PBKDF2
-from flask_socketio import SocketIO
 
 # ---------------------- Configuration ---------------------- #
 
@@ -50,7 +49,6 @@ app.config.update(
     MAIL_PASSWORD='spkl ysud nygk xkne'
 )
 mail = Mail(app)
-socketio = SocketIO(app)
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 file_reset_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
@@ -66,20 +64,6 @@ shared_files = db['shared_files']
 
 # ---------------------- Helper Functions ---------------------- #
 
-# ----- Helper Function to Broadcast Updates -----
-def broadcast_updates():
-    """
-    Gather updated counts and emit them to all connected clients.
-    This should be called right after any change in notifications or file statuses.
-    """
-    if 'username' in session:
-        username = session['username']
-        data = {
-            "notifications": access_requests.count_documents({'sender': username, 'read': False}),
-            "pending": shared_files.count_documents({'recipient_username': username, 'status': 'pending', 'read_pending': False}),
-            "approved": shared_files.count_documents({'recipient_username': username, 'status': 'approved', 'read_approved': False})
-        }
-        socketio.emit('update', data, broadcast=True)
 
 
 def derive_key(password, salt):
@@ -794,10 +778,10 @@ def share():
             'filename': filename,
             'gridfs_id': file_meta['gridfs_id'],
             'status': 'pending',
+            'sender_file_password': file_password, 
             'read_pending': False,
             'read_approved': False
         })
-        broadcast_updates()
         flash(f"File shared with {recipient_username}.", "success")
     return render_template('share.html', user_files=user_files)
 
@@ -854,24 +838,29 @@ def notifications():
         return redirect(url_for('login'))
     sender = session['username']
     notifs = list(db.access_requests.find({'sender': sender}))
+    # Optionally, mark all unread notifications as read
     db.access_requests.update_many({'sender': sender, 'read': False}, {'$set': {'read': True}})
     return render_template('notifications.html', notifications=notifs)
 
 @app.route('/allow_access/<notification_id>', methods=['POST'])
 def allow_access(notification_id):
-    # (Your existing logic to approve a notification goes here.)
-    # For example:
-    notification = access_requests.find_one({"_id": ObjectId(notification_id)})
-    if notification:
-        access_requests.update_one({"_id": ObjectId(notification_id)}, {"$set": {"status": "approved", "read": True}})
-        flash("Access approved.", "success")
-        # Broadcast updates after modifying the database
-        broadcast_updates()
+    """
+    Sender approves an access request: update status to 'approved'.
+    """
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    notif = db.access_requests.find_one({'_id': ObjectId(notification_id)})
+    shared_file_id = notif['shared_file_id']
+    db.shared_files.update_one({'_id': ObjectId(shared_file_id)}, {'$set': {'status': 'approved'}})
+    db.access_requests.delete_one({'_id': ObjectId(notification_id)})
+    flash("Access approved.", "success")
     return redirect(url_for('notifications'))
-
 
 @app.route('/deny_access/<notification_id>', methods=['POST'])
 def deny_access(notification_id):
+    """
+    Sender denies an access request: update status back to 'pending'.
+    """
     if 'username' not in session:
         return redirect(url_for('login'))
     notif = db.access_requests.find_one({'_id': ObjectId(notification_id)})
@@ -879,14 +868,14 @@ def deny_access(notification_id):
     db.shared_files.update_one({'_id': ObjectId(shared_file_id)}, {'$set': {'status': 'pending'}})
     db.access_requests.delete_one({'_id': ObjectId(notification_id)})
     flash("Access request denied.", "success")
-    broadcast_updates()
     return redirect(url_for('notifications'))
 
 @app.route('/download_file_with_status_check/<filename>', methods=['GET', 'POST'])
 def download_file_with_status_check(filename):
     """
     For a shared file that has been approved, the receiver is prompted for their file password.
-    After verifying it, the file is decrypted using the stored sender's plaintext password and served.
+    After verifying it, the file is decrypted using the stored sender's plaintext password (from shared_files)
+    and served with the correct MIME type determined by mimetypes.guess_type().
     """
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -949,6 +938,6 @@ def get_file(filename):
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
+    app.run(host="0.0.0.0",port=5000,debug=True)
 
 

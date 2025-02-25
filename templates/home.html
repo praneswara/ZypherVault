@@ -8,6 +8,26 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
     />
+    <!-- Web App Manifest (For Android & Chrome) -->
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='manifest.json') }}"
+    />
+
+    <!-- Favicon (For Browsers) -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+
+    <!-- Apple Touch Icon (For iOS Devices) -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
     <style>
       /* Ensure all dashboard items are arranged in a single column */
       .btn-container {
@@ -111,18 +131,4 @@
     </div>
   </body>
   <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
-  <script>
-    var socket = io();
-    socket.on("update", function (data) {
-      if (data.notifications !== undefined) {
-        document.getElementById("notifCount").textContent = data.notifications;
-      }
-      if (data.pending !== undefined) {
-        document.getElementById("pendingCount").textContent = data.pending;
-      }
-      if (data.approved !== undefined) {
-        document.getElementById("approvedCount").textContent = data.approved;
-      }
-    });
-  </script>
 </html>

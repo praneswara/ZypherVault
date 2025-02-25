@@ -9,6 +9,26 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
     />
+    <!-- Web App Manifest (For Android & Chrome) -->
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='manifest.json') }}"
+    />
+
+    <!-- Favicon (For Browsers) -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+
+    <!-- Apple Touch Icon (For iOS Devices) -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
   </head>
   <body>
     <div class="container">

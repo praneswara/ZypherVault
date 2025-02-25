@@ -4,7 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZypherVault - Secure File Storage</title>
-    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}">
+    <link
+      rel="icon"
+      type="image/jpg"
+      href="{{ url_for('static', filename='logo.jpg') }}"
+    />
+    <!-- Web App Manifest (For Android & Chrome) -->
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='manifest.json') }}"
+    />
+
+    <!-- Favicon (For Browsers) -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
+
+    <!-- Apple Touch Icon (For iOS Devices) -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='logo.png') }}"
+    />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"

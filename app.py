@@ -228,14 +228,24 @@ def confirm_email(token):
 
 @app.route('/resend_confirmation', methods=['POST'])
 def resend_confirmation():
-    """Resend the email confirmation link."""
-    if 'email' not in session:
-        flash("No email found in session. Please register again.", "error")
-        return redirect(url_for('register'))
-
-    email = session['email']
+    """Resend the email confirmation link, using an updated email if provided."""
+    # Check if a new email was entered in the form.
+    new_email = request.form.get('email')
+    if new_email:
+        email = new_email.strip()
+        # Optionally, update the user's email in the database if it differs.
+        user = db.users.find_one({'username': session.get('username')})
+        if user and user.get('email') != email:
+            db.users.update_one({'_id': user['_id']}, {'$set': {'email': email}})
+        session['email'] = email  # Update session with the new email.
+    else:
+        # If no new email provided, use the email from session.
+        if 'email' not in session:
+            flash("No email found in session. Please register again.", "error")
+            return redirect(url_for('register'))
+        email = session['email']
+    
     user = db.users.find_one({'email': email})
-
     if not user:
         flash("User not found. Please register again.", "error")
         return redirect(url_for('register'))
@@ -244,11 +254,11 @@ def resend_confirmation():
         flash("Your email is already verified.", "success")
         return redirect(url_for('login'))
 
-    # Generate a new confirmation token
+    # Generate a new confirmation token.
     token = serializer.dumps(email, salt='email-confirm-salt')
     confirm_url = url_for('confirm_email', token=token, _external=True)
 
-    # Send confirmation email
+    # Compose the confirmation email.
     msg = Message("Confirm Your Email – ZypherVault",
                   sender=app.config['MAIL_USERNAME'],
                   recipients=[email])
@@ -263,10 +273,24 @@ If you didn’t request this, you can safely ignore this email.
 Stay secure,
 The ZypherVault Team
 """
+    msg.html = f"""
+<html>
+  <body>
+    <p>Dear {user['username']},</p>
+    <p>Please confirm your email by clicking the button below:</p>
+    <p style="text-align: center;">
+      <a href="{confirm_url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm Email</a>
+    </p>
+    <p>If you didn’t request this, you can safely ignore this email.</p>
+    <p>Stay secure,<br>The ZypherVault Team</p>
+  </body>
+</html>
+"""
     mail.send(msg)
 
     flash("A new confirmation email has been sent.", "success")
     return render_template('email_confirmation.html', email=email)
+
 
 
 @app.route('/check_verification')

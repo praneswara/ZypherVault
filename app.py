@@ -228,44 +228,49 @@ def confirm_email(token):
 
 @app.route('/resend_confirmation', methods=['POST'])
 def resend_confirmation():
-    """Resend the email confirmation link, using an updated email if provided."""
-    # Check if a new email was entered in the form.
+    """Resend the email confirmation link using an updated email from the form."""
+    # Get the email from the form (the user-entered email)
     new_email = request.form.get('email')
-    if new_email:
-        email = new_email.strip()
-        # Optionally, update the user's email in the database if it differs.
-        user = db.users.find_one({'username': session.get('username')})
-        if user and user.get('email') != email:
-            db.users.update_one({'_id': user['_id']}, {'$set': {'email': email}})
-        session['email'] = email  # Update session with the new email.
-    else:
-        # If no new email provided, use the email from session.
-        if 'email' not in session:
-            flash("No email found in session. Please register again.", "error")
-            return redirect(url_for('register'))
-        email = session['email']
+    if not new_email:
+        flash("Please enter an email address.", "error")
+        return redirect(url_for('register'))
     
-    user = db.users.find_one({'email': email})
+    email = new_email.strip()
+    print("DEBUG: New email entered:", email)
+    
+    # Find the user based on the username stored in session.
+    user = db.users.find_one({'username': session.get('username')})
     if not user:
         flash("User not found. Please register again.", "error")
         return redirect(url_for('register'))
+    
+    # If the email in the DB is different from the new email, update it.
+    if user.get('email') != email:
+        result = db.users.update_one({'_id': user['_id']}, {'$set': {'email': email}})
+        print("DEBUG: DB update modified count:", result.modified_count)
+    
+    # Update the session with the new email.
+    session['email'] = email
 
+    # Retrieve the updated user record.
+    user = db.users.find_one({'username': session.get('username')})
     if user.get('email_verified'):
         flash("Your email is already verified.", "success")
         return redirect(url_for('login'))
 
-    # Generate a new confirmation token.
+    # Generate a new confirmation token using the updated email.
     token = serializer.dumps(email, salt='email-confirm-salt')
     confirm_url = url_for('confirm_email', token=token, _external=True)
+    print("DEBUG: Sending confirmation email to:", email)
+    print("DEBUG: Confirmation URL:", confirm_url)
 
-    # Compose the confirmation email.
+    # Compose and send the confirmation email.
     msg = Message("Confirm Your Email – ZypherVault",
                   sender=app.config['MAIL_USERNAME'],
                   recipients=[email])
     msg.body = f"""Dear {user['username']},
 
-We received a request to verify your email.
-Please confirm your email by clicking the link below:
+Please confirm your email by visiting the following link:
 {confirm_url}
 
 If you didn’t request this, you can safely ignore this email.

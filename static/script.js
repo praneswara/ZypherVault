@@ -1,22 +1,22 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("theme-toggle");
-  const body = document.body;
 
-  // Check local storage for theme preference
-  if (localStorage.getItem("theme") === "dark") {
-    body.classList.add("dark-mode");
-    themeToggle.textContent = "☀️";
-  }
+// Sidebar Toggle for Mobile
+const openSidebarBtn = document.getElementById('open-sidebar');
+const closeSidebarBtn = document.getElementById('close-sidebar');
+const sidebar = document.getElementById('sidebar');
 
-  themeToggle.addEventListener("click", () => {
-    if (body.classList.contains("dark-mode")) {
-      body.classList.remove("dark-mode");
-      localStorage.setItem("theme", "light");
-      themeToggle.textContent = "🌙"; // Moon icon for dark mode
-    } else {
-      body.classList.add("dark-mode");
-      localStorage.setItem("theme", "dark");
-      themeToggle.textContent = "☀️"; // Sun icon for light mode
-    }
+if (openSidebarBtn && closeSidebarBtn && sidebar) {
+  openSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.add('active');
   });
-});
+  closeSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.remove('active');
+  });
+}
+
+
+
+// Navigation Buttons
+document.getElementById('refresh-btn').addEventListener('click', () => location.reload());
+document.getElementById('back-btn').addEventListener('click', () => history.back());
+document.getElementById('forward-btn').addEventListener('click', () => history.forward());
+

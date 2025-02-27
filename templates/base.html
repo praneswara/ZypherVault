@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}ZypherVault{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='logo.jpg') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <!-- Include any common head elements here -->
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <!-- Hamburger menu button (shown on mobile) -->
+        <button class="open-sidebar" id="open-sidebar">&#9776;</button>
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="Logo"
+          class="logo"
+        />
+        <span class="app-name">
+          <span style="color: #ed4039;">Zypher</span>
+          <span style="color: #00a5df;">Vault</span>
+        </span>
+      </div>
+      <div class="navbar-right">
+        <!-- Only icon buttons remain -->
+        <button id="refresh-btn" class="nav-btn">⟳</button>
+        <button id="back-btn" class="nav-btn">←</button>
+        <button id="forward-btn" class="nav-btn">→</button>
+      </div>
+    </header>
+
+    <!-- Sidebar (Fixed for Desktop, Collapsible on Mobile) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>DASHBOARD</h2>
+        <button class="close-btn" id="close-sidebar">&times;</button>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="{{ url_for('upload_file') }}">Upload File</a></li>
+        <li><a href="{{ url_for('list_files') }}">My Files</a></li>
+        <li><a href="{{ url_for('share') }}">Share File</a></li>
+        <li><a href="{{ url_for('received_files') }}">Received Files</a></li>
+        <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+        <li>
+          <a href="{{ url_for('reset_file_password_options') }}">Reset File Password</a>
+        </li>
+        <li class="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      {% block content %}
+      <!-- Page-specific content will go here -->
+      {% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>

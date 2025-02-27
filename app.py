@@ -209,7 +209,8 @@ The ZypherVault Team
         flash("A confirmation email has been sent. Please check your email.", "success")
         return render_template('email_confirmation.html', email=email)
 
-    return render_template('register.html')
+    return render_template('register.html')              
+
 
 
 
@@ -616,7 +617,7 @@ def upload_file():
                 'gridfs_id': file_id
             })
             flash("File uploaded and encrypted.", "success")
-            return redirect(url_for('home'))
+            return redirect(url_for('upload_file'))
     return render_template('upload.html')
 
 

@@ -4,28 +4,73 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZypherVault - Email Confirmation</title>
-    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}">
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
+    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}" />
     <style>
-      .container {
-        width: 90%;
-        max-width: 600px;
-        margin: 40px auto;
+      /* Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      /* Body and Main Wrapper */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #102037;
+        color: #fff;
         padding: 20px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 8px;
+      }
+      .main-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      /* Header with Logo and App Name */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .header .logo {
+        max-width: 60px;
+        margin-right: 10px;
+      }
+      .header .app-name {
+        font-size: 28px;
+        font-weight: bold;
+      }
+      @media (max-width: 480px) {
+        .header .logo {
+          max-width: 40px;
+          margin-right: 5px;
+        }
+        .header .app-name {
+          font-size: 20px;
+        }
+      }
+      /* Email Confirmation Container */
+      .email-confirmation-container {
         background: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: #102037;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
       }
-      .status {
-        font-size: 18px;
-        margin-top: 20px;
+      .email-confirmation-container h1 {
+        margin-bottom: 20px;
+        color: #102037;
       }
-      .spinner {
+      .email-confirmation-container p {
+        margin-bottom: 20px;
+        font-size: 16px;
+      }
+      /* Spinner & Checkmark */
+      .email-confirmation-spinner {
         margin: 20px auto;
         width: 40px;
         height: 40px;
@@ -35,20 +80,28 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
+        to { transform: rotate(360deg); }
       }
-      .checkmark {
+      .email-confirmation-checkmark {
         font-size: 48px;
         color: green;
         display: none;
+        margin: 20px auto;
       }
-      .resend-form {
+      /* Resend Confirmation Form */
+      .email-confirmation-resend-form {
         margin-top: 20px;
         display: none; /* Hidden initially */
       }
-      .btn {
+      .email-confirmation-resend-form input[type="email"] {
+        padding: 8px;
+        width: 80%;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .email-confirmation-resend-form .btn {
         padding: 10px 20px;
         border: none;
         border-radius: 4px;
@@ -57,14 +110,37 @@
         font-size: 16px;
         cursor: pointer;
         text-decoration: none;
+        transition: background-color 0.3s ease;
       }
-      .btn:hover {
+      .email-confirmation-resend-form .btn:hover {
         background-color: #0056b3;
       }
-      input[type="email"] {
-        padding: 8px;
-        width: 80%;
+      /* Flash Messages */
+      .email-confirmation-messages {
+        list-style: none;
+        margin-bottom: 15px;
+        padding: 0;
+      }
+      .email-confirmation-messages li {
         margin-bottom: 10px;
+        background: #f44336;
+        color: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        text-align: center;
+      }
+      /* Responsive Adjustments */
+      @media (max-width: 480px) {
+        .email-confirmation-container {
+          padding: 20px;
+        }
+        .email-confirmation-container p {
+          font-size: 14px;
+        }
+        .email-confirmation-resend-form input[type="email"],
+        .email-confirmation-resend-form .btn {
+          font-size: 14px;
+        }
       }
     </style>
     <script>
@@ -75,7 +151,6 @@
           .then((response) => response.json())
           .then((data) => {
             if (data.verified) {
-              // Stop polling, show the checkmark, and redirect after 2 seconds.
               clearInterval(pollInterval);
               document.getElementById("spinner").style.display = "none";
               document.getElementById("checkmark").style.display = "block";
@@ -86,11 +161,7 @@
           })
           .catch((error) => console.error("Error:", error));
       }
-
-      // Start polling every 5 seconds.
       var pollInterval = setInterval(pollVerification, 5000);
-
-      // After 60 seconds, show the resend confirmation form.
       window.addEventListener("load", function () {
         setTimeout(function () {
           document.getElementById("resendForm").style.display = "block";
@@ -99,46 +170,46 @@
     </script>
   </head>
   <body>
-    <div class="container">
-      <h1>Email Confirmation</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %}
-      <ul class="messages">
-        {% for category, message in messages %}
-        <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %} {% endwith %} {% if email %}
-      <p>
-        A confirmation email has been sent to <strong>{{ email }}</strong>.
-        Please check your inbox and click the confirmation link.
-      </p>
-      {% else %}
-      <p>
-        Please enter your registered email to resend the confirmation email.
-      </p>
-      {% endif %}
-
-      <div id="spinner" class="spinner"></div>
-      <div id="checkmark" class="checkmark">✓</div>
-
-      <!-- Resend Confirmation Form, hidden initially -->
-      <form
-        id="resendForm"
-        class="resend-form"
-        action="{{ url_for('resend_confirmation') }}"
-        method="post"
-      >
-        <input
-          type="email"
-          name="email"
-          value="{{ email }}"
-          required
-          placeholder="Enter your correct email"
-        />
-        <br />
-        <button type="submit" class="btn">Resend Confirmation</button>
-      </form>
+    <div class="main-wrapper">
+      <!-- Header with Logo and App Name -->
+      <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo" />
+        <span class="app-name">
+          <span style="color: #ed4039;">Zypher</span>
+          <span style="color: #00a5df;">Vault</span>
+        </span>
+      </div>
+      <!-- Email Confirmation Container -->
+      <div class="email-confirmation-container">
+        <h1>Email Confirmation</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="email-confirmation-messages">
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        {% if email %}
+          <p>
+            A confirmation email has been sent to <strong>{{ email }}</strong>.<br>
+            Please check your inbox and click the confirmation link.
+          </p>
+        {% else %}
+          <p>
+            Please enter your registered email to resend the confirmation email.
+          </p>
+        {% endif %}
+        <div id="spinner" class="email-confirmation-spinner"></div>
+        <div id="checkmark" class="email-confirmation-checkmark">✓</div>
+        <!-- Resend Confirmation Form -->
+        <form id="resendForm" class="email-confirmation-resend-form" action="{{ url_for('resend_confirmation') }}" method="post">
+          <input type="email" name="email" value="{{ email }}" required placeholder="Enter your correct email">
+          <br>
+          <button type="submit" class="btn">Resend Confirmation</button>
+        </form>
+      </div>
     </div>
   </body>
 </html>

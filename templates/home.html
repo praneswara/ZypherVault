@@ -1,133 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>ZypherVault - Dashboard</title>
-    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}">
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-    <!-- Web App Manifest (For Android & Chrome) -->
-    <link
-      rel="manifest"
-      href="{{ url_for('static', filename='manifest.json') }}"
-    />
+{% extends "base.html" %}
 
-    <!-- Favicon (For Browsers) -->
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="{{ url_for('static', filename='logo.jpg') }}"
-    />
+{% block title %}Welcome to ZypherVault{% endblock %}
 
-    <!-- Apple Touch Icon (For iOS Devices) -->
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="{{ url_for('static', filename='logo.jpg') }}"
-    />
-    <style>
-      /* Ensure all dashboard items are arranged in a single column */
-      .btn-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-      }
-      /* Uniform container for each dashboard button */
-      .dashboard-item {
-        position: relative;
-        width: 80%;
-        text-align: center;
-      }
-      .dashboard-item .btn {
-        display: block;
-        width: 100%;
-        padding: 12px;
-        background-color: #007bff;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-      }
-      .dashboard-item .btn:hover {
-        background-color: #0056b3;
-      }
-      /* Indicator dots */
-      .indicator-left {
-        position: absolute;
-        top: -5px;
-        left: -5px;
-        background-color: green;
-        color: #fff;
-        border-radius: 50%;
-        padding: 2px 6px;
-        font-size: 12px;
-        font-weight: bold;
-      }
-      .indicator-right {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: red;
-        color: #fff;
-        border-radius: 50%;
-        padding: 2px 6px;
-        font-size: 12px;
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Dashboard</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %}
-      <ul class="messages">
-        {% for category, message in messages %}
-        <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %} {% endwith %}
-      <div class="btn-container">
-        <div class="dashboard-item">
-          <a href="{{ url_for('upload_file') }}" class="btn">Upload File</a>
-        </div>
-        <div class="dashboard-item">
-          <a href="{{ url_for('list_files') }}" class="btn">My Files</a>
-        </div>
-        <div class="dashboard-item">
-          <a href="{{ url_for('share') }}" class="btn">Share File</a>
-        </div>
-        <!-- Received Files: Green indicator on top-left and Red on top-right -->
-        <div class="dashboard-item">
-          <a href="{{ url_for('received_files') }}" class="btn"
-            >Received Files</a
-          >
-          {% if unread_approved > 0 %}
-          <span class="indicator-left">{{ unread_approved }}</span>
-          {% endif %} {% if unread_pending > 0 %}
-          <span class="indicator-right">{{ unread_pending }}</span>
-          {% endif %}
-        </div>
-        <!-- Notifications: Red indicator on top-right -->
-        <div class="dashboard-item">
-          <a href="{{ url_for('notifications') }}" class="btn">Notifications</a>
-          {% if unread_count > 0 %}
-          <span class="indicator-right">{{ unread_count }}</span>
-          {% endif %}
-        </div>
-        <div class="dashboard-item">
-          <a href="{{ url_for('reset_file_password_options') }}" class="btn"
-            >Reset File Password</a
-          >
-        </div>
-        <div class="dashboard-item">
-          <a href="{{ url_for('logout') }}" class="btn">Logout</a>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+{% block head %}
+  <style>
+    /* Styles for the welcome page content */
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .about, .features, .get-started {
+      text-align: left;
+      margin-top: 30px;
+    }
+    .about h2, .features h2, .get-started h2 {
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+    .features ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    .features li {
+      margin-bottom: 5px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Welcome to ZypherVault</h1>
+  <p>
+    ZypherVault is your secure, encrypted cloud-based file storage solution.
+    Our platform helps you manage your files effortlessly while keeping your data
+    safe and accessible only to authorized users.
+  </p>
+  
+  <section class="about">
+    <h2>About ZypherVault</h2>
+    <p>
+      With advanced encryption techniques and a user-friendly interface, ZypherVault
+      provides a robust solution for file storage and sharing. Whether you're an
+      individual or a business, our platform ensures that your files remain private
+      and secure.
+    </p>
+  </section>
+  
+  <section class="features">
+    <h2>Key Features</h2>
+    <ul>
+      <li>End-to-end encryption for maximum security.</li>
+      <li>Easy file uploading, viewing, and sharing.</li>
+      <li>Responsive design for seamless access on any device.</li>
+      <li>Granular access control and user management.</li>
+      <li>Activity logs and notifications to keep you informed.</li>
+    </ul>
+  </section>
+  
+  <section class="get-started">
+    <h2>Get Started</h2>
+    <p>
+      Use the sidebar to navigate through your account options. You can upload new files,
+      view your files, share files with others, and manage your settings—all from one place.
+    </p>
+  </section>
+</div>
+{% endblock %}

@@ -1,109 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZypherVault - Notifications</title>
-    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}">
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-    <style>
-      /* Container for each notification card */
-      .notification-item {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      /* Notification details */
-      .notification-info {
-        font-size: 16px;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-      /* Container for action buttons */
-      .notification-actions {
-        display: flex;
-        gap: 10px;
-      }
-      /* Each form (button container) takes equal space */
-      .notification-actions form {
-        flex: 1;
-      }
-      /* Button styles */
-      .btn-allow,
-      .btn-deny {
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      .btn-allow {
-        background-color: green;
-        color: #fff;
-      }
-      .btn-allow:hover {
-        background-color: darkgreen;
-      }
-      .btn-deny {
-        background-color: red;
-        color: #fff;
-      }
-      .btn-deny:hover {
-        background-color: darkred;
-      }
-      /* Responsive design: Ensure spacing adjusts on smaller screens */
-      @media (max-width: 480px) {
-        .notification-info {
-          font-size: 14px;
-        }
-        .btn-allow,
-        .btn-deny {
-          font-size: 14px;
-          padding: 8px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Notifications</h1>
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %}
+{% extends "base.html" %}
+
+{% block title %}ZypherVault - Notifications{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+  <h1>Notifications</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
       <ul class="messages">
         {% for category, message in messages %}
-        <li class="{{ category }}">{{ message }}</li>
+          <li class="{{ category }}">{{ message }}</li>
         {% endfor %}
       </ul>
-      {% endif %} {% endwith %} {% for notif in notifications %}
-      <div class="notification-item">
-        <div class="notification-info">
-          <p>From: {{ notif.sender }} - File: {{ notif.filename }}</p>
-        </div>
-        <div class="notification-actions">
-          <form
-            action="{{ url_for('allow_access', notification_id=notif._id) }}"
-            method="post"
-          >
-            <button type="submit" class="btn-allow">Accept</button>
-          </form>
-          <form
-            action="{{ url_for('deny_access', notification_id=notif._id) }}"
-            method="post"
-          >
-            <button type="submit" class="btn-deny">Reject</button>
-          </form>
-        </div>
+    {% endif %}
+  {% endwith %}
+  
+  {% for notif in notifications %}
+    <div class="notifications-item">
+      <div class="notifications-info">
+        <p>From: {{ notif.sender }} - File: {{ notif.filename }}</p>
       </div>
-      {% endfor %}
-      <a href="{{ url_for('home') }}">Back to Dashboard</a>
+      <div class="notifications-actions">
+        <form action="{{ url_for('allow_access', notification_id=notif._id) }}" method="post">
+          <button type="submit" class="notifications-btn-allow">Accept</button>
+        </form>
+        <form action="{{ url_for('deny_access', notification_id=notif._id) }}" method="post">
+          <button type="submit" class="notifications-btn-deny">Reject</button>
+        </form>
+      </div>
     </div>
-  </body>
-</html>
+  {% endfor %}
+</div>
+
+<!-- Fixed Footer Navigation -->
+<div class="notifications-footer-nav">
+  <a href="{{ url_for('home') }}">Back to Home</a>
+</div>
+{% endblock %}

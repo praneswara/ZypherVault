@@ -1,293 +1,1400 @@
-/* Reset defaults */
+/* RESET */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #ece9e6, #ffffff);
-  color: #333;
-  line-height: 1.6;
+  background: #142742;
+  color: #ffffff;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Container */
-.container {
-  width: 90%;
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0c1e31;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+}
+
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.app-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Navigation icons (refresh, back, forward) */
+.nav-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Hamburger menu button now inside the navbar */
+.open-sidebar {
+  display: none;  /* hidden by default (desktop) */
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 240px;
+  height: calc(100vh - 60px);
+  background-color: #0c1e31;
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+
+/* Sidebar visible on desktop by default */
+.sidebar.active {
+  transform: translateX(0);
+}
+
+/* Sidebar header */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: none; /* only shown on mobile */
+}
+
+/* Sidebar menu */
+.sidebar-menu {
+  list-style: none;
+  margin-top: 20px;
+}
+
+.sidebar-menu li {
+  margin: 10px 0;
+}
+
+.sidebar-menu li a,
+.sidebar-menu li button {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.sidebar-menu li a:hover,
+.sidebar-menu li button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Logout item pushed to bottom */
+.sidebar-menu li.logout {
+  margin-top: auto;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  margin-top: 60px;
+  margin-left: 240px;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-240px);
+  }
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  .close-btn {
+    display: block;
+  }
+  .open-sidebar {
+    display: inline-block;
+  }
+  .main-content {
+    margin-left: 0;
+    margin-top: 60px;
+  }
+}
+
+/* upload.html */
+
+.upload-container {
+  max-width: 600px;
+  margin: 40px auto;  /* add top and bottom spacing as needed */
+  padding: 20px;
+  text-align: center;
+}
+
+.upload-container h1 {
+  margin-bottom: 20px;
+}
+
+.upload-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.upload-container form label {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.upload-container form input[type="file"],
+.upload-container form input[type="password"],
+.upload-container form input[type="submit"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.upload-container form input[type="submit"] {
+  cursor: pointer;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+}
+
+.upload-container a {
+  display: block;
+  margin-top: 20px;
+  color: #00a5df;
+  text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .upload-container {
+    padding: 10px;
+  }
+  
+  .upload-container form label,
+  .upload-container form input[type="file"],
+  .upload-container form input[type="password"],
+  .upload-container form input[type="submit"] {
+    max-width: 100%;
+  }
+}
+
+/* files.html */
+
+/* Files Page Wrapper to account for fixed sidebar */
+.files-page-wrapper {
+  margin-left: 240px; /* Reserve space for the sidebar on desktop */
+}
+@media (max-width: 768px) {
+  .files-page-wrapper {
+    margin-left: 0;
+  }
+}
+
+/* Container for the files page – centered with equal side padding */
+.files-page-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* auto for left/right centering */
+  padding: 0 20px; /* ensures equal spacing on mobile */
+}
+
+/* Page Title */
+.files-page-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Grid for file cards with fixed column widths */
+.files-page-file-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 200px);  /* 5 fixed-width columns on large screens */
+  gap: 20px;
+  justify-content: center;  /* centers the grid within the container */
+  padding: 20px 0;
+}
+
+/* Responsive adjustments */
+/* Medium screens: 3 columns */
+@media (max-width: 1024px) {
+  .files-page-file-grid {
+    grid-template-columns: repeat(3, 200px);
+  }
+}
+/* Small screens: 2 columns */
+@media (max-width: 768px) {
+  .files-page-file-grid {
+    grid-template-columns: repeat(2, 165px);
+  }
+}
+
+/* File Card Styles */
+.files-page-file-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s ease;
+  color: #333;
+}
+.files-page-file-card:hover {
+  transform: translateY(-5px);
+}
+.files-page-file-icon {
+  font-size: 48px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+.files-page-file-name {
+  font-size: 12px;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+.files-page-file-link {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  margin-bottom: 10px;
+}
+.files-page-file-link:hover {
+  background-color: #0056b3;
+}
+.files-page-btn-delete {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.files-page-btn-delete:hover {
+  background-color: #c9302c;
+}
+
+/* Fixed Footer Navigation */
+.files-page-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px;
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  .files-page-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+.files-page-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+.files-page-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Flashed Messages */
+.files-page-messages {
+  list-style: none;
+  margin-bottom: 20px;
+  padding: 0;
+}
+.files-page-messages li {
+  margin-bottom: 10px;
+}
+
+/* Restore Items Page Wrapper to account for fixed sidebar */
+.restore-items-wrapper {
+  margin-left: 240px; /* Reserve space for the sidebar on desktop */
+}
+@media (max-width: 768px) {
+  .restore-items-wrapper {
+    margin-left: 0;
+  }
+}
+
+/* Container for the Restore Items page – centered with equal side padding */
+.restore-items-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* auto left/right centering with extra bottom margin for footer */
+  padding: 0 20px;
+}
+
+/* Page Titles */
+.restore-items-container h1,
+.restore-items-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Grid for file cards with fixed column widths */
+.restore-items-file-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 200px);  /* 5 fixed-width columns on large screens */
+  gap: 20px;
+  justify-content: center;  /* centers the grid within the container */
+  padding: 20px 0;
+}
+
+/* Responsive adjustments */
+/* Medium screens: 3 columns */
+@media (max-width: 1024px) {
+  .restore-items-file-grid {
+    grid-template-columns: repeat(3, 200px);
+  }
+}
+/* Small screens: 2 columns */
+@media (max-width: 768px) {
+  .restore-items-file-grid {
+    grid-template-columns: repeat(2, 165px);
+  }
+}
+
+/* Restore file card styling */
+.restore-items-file-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s ease;
+  color: #333;
+}
+.restore-items-file-card:hover {
+  transform: translateY(-5px);
+}
+.restore-items-file-icon {
+  font-size: 48px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+.restore-items-file-name {
+  font-size: 12px;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+/* Days remaining text */
+.restore-items-days-remaining {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Action buttons container */
+.restore-items-action-buttons {
+  display: flex;
+  gap: 10px;
+}
+.restore-items-action-buttons form {
+  flex: 1;
+}
+.restore-items-restore-btn {
+  width: 100%;
+  padding: 6px 12px;
+  background-color: #5cb85c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.restore-items-restore-btn:hover {
+  background-color: #4cae4c;
+}
+.restore-items-permanent-delete-btn {
+  width: 100%;
+  padding: 6px 12px;
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.restore-items-permanent-delete-btn:hover {
+  background-color: #c9302c;
+}
+
+/* Fixed Footer Navigation */
+.restore-items-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px;
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  .restore-items-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+.restore-items-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+.restore-items-footer-nav a:hover {
+  text-decoration: underline;
+}
+.restore-items-footer-nav form {
+  margin: 0;
+}
+.restore-items-footer-nav button {
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.restore-items-footer-nav button:hover {
+  background-color: #c9302c;
+}
+
+/* Flashed Messages */
+.restore-items-messages {
+  list-style: none;
+  margin-bottom: 20px;
+  padding: 0;
+}
+.restore-items-messages li {
+  margin-bottom: 10px;
+}
+
+/* Share File Page Styles */
+.share-file-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.share-file-container h1 {
+  margin-bottom: 20px;
+}
+
+/* Form Layout */
+.share-file-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.share-file-form label {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.share-file-form select,
+.share-file-form input[type="text"],
+.share-file-form input[type="password"],
+.share-file-form input[type="submit"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.share-file-form input[type="submit"] {
+  cursor: pointer;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.share-file-form input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+/* Back link styling */
+.share-file-container a {
+  display: block;
+  margin-top: 20px;
+  color: #00a5df;
+  text-decoration: none;
+}
+
+.share-file-container a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .share-file-container {
+    padding: 10px;
+  }
+}
+
+/* Received Files Page Styles */
+
+.received-files-container {
   max-width: 1000px;
   margin: 20px auto;
   padding: 20px;
+}
+
+.received-files-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Grid container for file cards with fixed column widths */
+.received-files-file-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 200px);  /* 5 fixed-width columns on large screens */
+  gap: 20px;
+  justify-content: center;  /* centers the grid within the container */
+  padding: 20px 0;
+}
+
+/* Responsive adjustments */
+/* Medium screens: 3 columns */
+@media (max-width: 1024px) {
+  .received-files-file-grid {
+    grid-template-columns: repeat(3, 200px);
+  }
+}
+/* Small screens: 2 columns */
+@media (max-width: 768px) {
+  .received-files-file-grid {
+    grid-template-columns: repeat(2, 165px);
+  }
+}
+
+/* File card styling */
+.received-files-file-card {
   background: #fff;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-/* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #007bff;
-    padding: 15px 20px;
-    position: fixed;
-    width: 100%;
-    top: 0;
+.received-files-file-card:hover {
+  transform: translateY(-5px);
+}
+
+.received-files-file-icon {
+  font-size: 48px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.received-files-file-name {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+
+/* Link and action button styling */
+.received-files-file-link,
+.received-files-btn-action {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  margin-top: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.received-files-file-link {
+  background-color: #007bff;
+  color: #fff;
+}
+.received-files-file-link:hover {
+  background-color: #0056b3;
+}
+
+/* Status text styling */
+.received-files-status-text {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* Fixed Footer Navigation */
+.received-files-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* offset to account for the fixed sidebar */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center; /* centers the link */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037; /* matching body background */
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  .received-files-footer-nav {
     left: 0;
-    color: white;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-/* Logo Styling */
-.logo {
-    height: 40px; /* Adjust as needed */
-    margin-right: 10px;
-}
-
-
-.app-name {
-    font-size: 22px;
-    font-weight: bold;
-    position: relative;
-    top: -10px; /* Moves the text slightly upward */
-}
-
-.navbar .nav-left h2 {
-    margin: 0;
-}
-
-.navbar .nav-right {
-    display: flex;
-    align-items: center;
-}
-
-.navbar .btn {
-    margin-left: 15px;
-    padding: 8px 12px;
-    background: white;
-    color: #007bff;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-.navbar .btn:hover {
-    background: #f1f1f1;
-}
-
-/* Dark Mode Toggle */
-.toggle-btn {
-    margin-left: 15px;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    background: white;
-    color: #007bff;
-    border-radius: 5px;
-}
-
-/* Content Sections */
-.about, .features, .security {
-    background: #fff;
-    padding: 20px;
-    margin: 20px auto;
-    border-radius: 8px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.features ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.features ul li {
-    padding: 8px 0;
-    font-size: 16px;
-}
-
-/* Footer */
-.footer {
-    text-align: center;
-    padding: 15px;
-    background: #f1f1f1;
-    position: fixed;
-    bottom: 0;
     width: 100%;
+  }
+}
+.received-files-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+.received-files-footer-nav a:hover {
+  text-decoration: underline;
+}
+/* Notifications Page Styles */
+.notifications-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
 }
 
-/* Dark Mode */
-.dark-mode {
-    background: #121212;
-    color: white;
+.notifications-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.dark-mode .navbar {
-    background: #333;
+/* Notification Card Styling */
+.notifications-item {
+  border: 1px solid #ddd;
+  color: black;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.dark-mode .navbar .btn,
-.dark-mode .toggle-btn {
-    background: #444;
-    color: white;
+.notifications-info {
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-.dark-mode .footer {
-    background: #222;
+.notifications-actions {
+  display: flex;
+  gap: 10px;
 }
 
-.dark-mode .about, 
-.dark-mode .features, 
-.dark-mode .security {
-    background: #1e1e1e;
-    color: white;
-    box-shadow: 0px 2px 8px rgba(255, 255, 255, 0.1);
+.notifications-actions form {
+  flex: 1;
 }
 
-
-
-/* Forms */
-form {
-  margin: 20px 0;
-}
-
-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-form input[type="text"],
-form input[type="password"],
-form input[type="email"],
-form input[type="file"],
-form select {
+.notifications-btn-allow,
+.notifications-btn-deny {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-form input[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  background-color: #007bff;
   border: none;
   border-radius: 4px;
-  color: #fff;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-form input[type="submit"]:hover {
-  background-color: #0056b3;
+.notifications-btn-allow {
+  background-color: green;
+  color: #fff;
 }
 
-/* Headings */
-h1, h2 {
+.notifications-btn-allow:hover {
+  background-color: darkgreen;
+}
+
+.notifications-btn-deny {
+  background-color: red;
+  color: #fff;
+}
+
+.notifications-btn-deny:hover {
+  background-color: darkred;
+}
+
+/* Fixed Footer Navigation for Notifications Page */
+.notifications-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* offset to account for the fixed sidebar */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center; /* centers the link */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037; /* matching body background */
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .notifications-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.notifications-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.notifications-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .notifications-info {
+    font-size: 14px;
+  }
+  .notifications-btn-allow,
+  .notifications-btn-deny {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+/* Reset File Password Options Page Styles */
+.reset-file-options-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
   text-align: center;
+}
+
+.reset-file-options-container h1 {
   margin-bottom: 20px;
 }
 
-/* Links */
-a {
+.reset-file-options-container p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* Button Container: Stack buttons with spacing */
+.reset-file-options-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Option Button Styling */
+.reset-file-options-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background-color: #0c1e31;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.reset-file-options-btn:hover {
+  background-color: #003a70;
+}
+
+/* Fixed Footer Navigation for Reset File Password Options Page */
+.reset-file-options-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Reserve space for the fixed sidebar on desktop */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center; /* centers the link */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037; /* matching your body background */
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .reset-file-options-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.reset-file-options-footer-nav a {
   color: #007bff;
   text-decoration: none;
-  transition: color 0.3s ease;
+  font-size: 16px;
 }
 
-a:hover {
-  color: #0056b3;
+.reset-file-options-footer-nav a:hover {
+  text-decoration: underline;
 }
 
-/* Messages */
-.messages {
-  list-style: none;
-  margin-bottom: 15px;
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .reset-file-options-container {
+    padding: 10px;
+  }
+  .reset-file-options-btn {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+}
+
+/* Change File Password Page Styles */
+.change-file-password-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
   text-align: center;
 }
 
-.messages li {
-  margin-bottom: 5px;
-  font-size: 14px;
+.change-file-password-container h1 {
+  margin-bottom: 20px;
 }
 
-.error {
-  color: #d9534f;
-}
-
-.success {
-  color: #5cb85c;
-}
-
-/* Button Containers */
-.btn-container {
+/* Form Layout */
+.change-file-password-form {
   display: flex;
   flex-direction: column;
+  gap: 15px;
   align-items: center;
-  margin-top: 30px;
 }
 
-.btn {
-  display: inline-block;
-  padding: 12px 25px;
-  margin: 10px;
-  background-color: #007bff;
+.change-file-password-form label {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.change-file-password-form input[type="password"],
+.change-file-password-form input[type="submit"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.change-file-password-form input[type="submit"] {
+  background-color: #0c1e31;
   color: #fff;
   border: none;
-  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.change-file-password-form input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+/* Fixed Footer Navigation */
+.change-file-password-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Offset for fixed sidebar */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .change-file-password-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.change-file-password-footer-nav a {
+  color: #007bff;
   text-decoration: none;
   font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  cursor: pointer;
 }
 
-.btn:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
+.change-file-password-footer-nav a:hover {
+  text-decoration: underline;
 }
 
-/* Notifications */
-.notification-container,
-.rf-container {
-  position: relative;
-  display: inline-block;
-}
-
-.notification-dot,
-.approved-dot,
-.pending-dot {
-  position: absolute;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.notification-dot {
-  top: -5px;
-  right: -5px;
-  background-color: #d9534f;
-}
-
-.approved-dot {
-  top: -5px;
-  left: -5px;
-  background-color: #5cb85c;
-}
-
-.pending-dot {
-  top: -5px;
-  right: -5px;
-  background-color: #d9534f;
-}
-
-/* Responsive Design */
-@media (min-width: 768px) {
-  .btn-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+/* Responsive adjustments for small screens */
+@media (max-width: 480px) {
+  .change-file-password-container {
+    padding: 10px;
   }
+  .change-file-password-form input[type="password"],
+  .change-file-password-form input[type="submit"] {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+/* Forgot File Password Email Page Styles */
+.forgot-file-password-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.forgot-file-password-container h1 {
+  margin-bottom: 20px;
+}
+
+/* Form Layout */
+.forgot-file-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.forgot-file-password-form label {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.forgot-file-password-form input[type="email"],
+.forgot-file-password-form input[type="submit"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.forgot-file-password-form input[type="submit"] {
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.forgot-file-password-form input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+/* Fixed Footer Navigation */
+.forgot-file-password-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px;  /* Offset for fixed sidebar on desktop */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .forgot-file-password-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.forgot-file-password-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.forgot-file-password-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .forgot-file-password-container {
+    padding: 10px;
+  }
+  .forgot-file-password-form input[type="email"],
+  .forgot-file-password-form input[type="submit"] {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+/* Request File Access Page Styles */
+.request-file-access-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* extra bottom margin to accommodate fixed footer */
+  padding: 20px;
+  background: #fff;
+  color: #102037;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.request-file-access-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #102037;
+}
+
+.request-file-access-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-file-access-container label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.request-file-access-container input[type="password"] {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.request-file-access-container input[type="submit"] {
+  padding: 10px;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.request-file-access-container input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+.request-file-access-messages {
+  list-style: none;
+  margin-bottom: 15px;
+  padding: 0;
+}
+
+.request-file-access-messages li {
+  margin-bottom: 10px;
+  background: #f44336;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Fixed Footer Navigation for Request File Access Page */
+.request-file-access-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Offset to account for fixed sidebar on desktop */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .request-file-access-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.request-file-access-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.request-file-access-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Enter File Password Page Styles */
+.enter-file-password-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* extra bottom margin to accommodate fixed footer */
+  padding: 20px;
+  background: #fff;
+  color: #102037;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.enter-file-password-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #102037;
+}
+
+.enter-file-password-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.enter-file-password-container label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.enter-file-password-container input[type="password"] {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.enter-file-password-container input[type="submit"] {
+  padding: 10px;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.enter-file-password-container input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+.enter-file-password-messages {
+  list-style: none;
+  margin-bottom: 15px;
+  padding: 0;
+}
+
+.enter-file-password-messages li {
+  margin-bottom: 10px;
+  background: #f44336;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Fixed Footer Navigation for Enter File Password Page */
+.enter-file-password-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Offset to account for fixed sidebar on desktop */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .enter-file-password-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.enter-file-password-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.enter-file-password-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Receiver File Password Page Styles */
+.receiver-file-password-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* extra bottom margin to accommodate fixed footer */
+  padding: 20px;
+  background: #fff;
+  color: #102037;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.receiver-file-password-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #102037;
+}
+
+.receiver-file-password-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.receiver-file-password-container label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.receiver-file-password-container input[type="password"] {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.receiver-file-password-container input[type="submit"] {
+  padding: 10px;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.receiver-file-password-container input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+.receiver-file-password-messages {
+  list-style: none;
+  margin-bottom: 15px;
+  padding: 0;
+}
+
+.receiver-file-password-messages li {
+  margin-bottom: 10px;
+  background: #f44336;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Fixed Footer Navigation for Receiver File Password Page */
+.receiver-file-password-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Offset for fixed sidebar on desktop */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .receiver-file-password-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.receiver-file-password-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.receiver-file-password-footer-nav a:hover {
+  text-decoration: underline;
 }

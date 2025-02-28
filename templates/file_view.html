@@ -1,0 +1,30 @@
+{% extends "base.html" %} {% block title %}View File - {{ filename }}{% endblock
+%} {% block content %}
+<div class="file-viewer-wrapper">
+  <!-- Header with file name and download icon -->
+  <div class="file-viewer-header">
+    <h5>{{ filename }}</h5>
+    <!-- Note: href is set to '#' and data-filename holds the actual filename -->
+    <a
+      href="#"
+      id="download-btn"
+      data-filename="{{ filename }}"
+      class="download-icon"
+    >
+      <i class="fa fa-download"></i>
+    </a>
+  </div>
+  <!-- File content embedded in an iframe -->
+  <div class="file-viewer-content">
+    <iframe
+      src="data:{{ mime }};base64,{{ decrypted_data_base64 }}"
+      width="100%"
+      height="100%"
+      frameborder="0"
+    ></iframe>
+  </div>
+</div>
+<div class="file-view-footer">
+  <a href="{{ back_url }}">Back to Files</a>
+</div>
+{% endblock %}

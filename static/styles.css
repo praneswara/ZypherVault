@@ -1398,3 +1398,206 @@ body {
 .receiver-file-password-footer-nav a:hover {
   text-decoration: underline;
 }
+/* Enter File Password Page Styles */
+.enter-file-password-container {
+  max-width: 1000px;
+  margin: 20px auto 120px auto; /* extra bottom margin to accommodate fixed footer */
+  padding: 20px;
+  background: #fff;
+  color: #102037;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.enter-file-password-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #102037;
+}
+
+.enter-file-password-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.enter-file-password-container label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.enter-file-password-container input[type="password"] {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.enter-file-password-container input[type="submit"] {
+  padding: 10px;
+  background-color: #0c1e31;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.enter-file-password-container input[type="submit"]:hover {
+  background-color: #003a70;
+}
+
+.enter-file-password-messages {
+  list-style: none;
+  margin-bottom: 15px;
+  padding: 0;
+}
+
+.enter-file-password-messages li {
+  margin-bottom: 10px;
+  background: #f44336;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Fixed Footer Navigation for Enter File Password Page */
+.enter-file-password-footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 240px; /* Offset to account for fixed sidebar */
+  width: calc(100% - 240px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .enter-file-password-footer-nav {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.enter-file-password-footer-nav a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.enter-file-password-footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* --- File Viewer Layout --- */
+.file-viewer-wrapper {
+  position: fixed;
+  top: 70px;           /* Adjust for your navbar height */
+  left: 250px;         /* Adjust for your sidebar width */
+  width: calc(100% - 270px);  /* 250 + 20 spacing */
+  height: calc(100vh - 140px); /* 70 top + 70 footer (adjust as needed) */
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+  background: transparent;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .file-viewer-wrapper {
+    left: 10px;
+    width: calc(100% - 20px);
+  }
+}
+
+/* Header with File Name and Download Icon */
+.file-viewer-header {
+  position: relative;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  margin-bottom: 10px;
+  padding: 0 20px;
+}
+
+.file-viewer-header h5 {
+  margin: 0;
+  font-size: 15px;
+  color: white;
+}
+
+.download-icon {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  font-size: 28px;
+  color: #00a5df;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.download-icon:hover {
+  color: #ed4039;
+}
+
+/* File Viewer Content Area */
+.file-viewer-content {
+  flex-grow: 1;
+  overflow: auto;
+  background: #142742;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.file-viewer-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+}
+
+/* Fixed Footer Navigation */
+.file-view-footer {
+  position: fixed;
+  bottom: 0;
+  left: 250px;
+  width: calc(100% - 270px);
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #102037;
+  border-top: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .file-view-footer {
+    left: 0;
+    width: 100%;
+  }
+}
+
+.file-view-footer a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.file-view-footer a:hover {
+  text-decoration: underline;
+}

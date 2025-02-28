@@ -11,6 +11,7 @@ Features include:
 """
 
 import os
+import base64
 import mimetypes
 from io import BytesIO
 
@@ -741,9 +742,6 @@ def delete_all_restore():
 
 @app.route('/download/<filename>', methods=['GET', 'POST'])
 def download_file(filename):
-    """
-    Allow the file owner to download (decrypt) their file from GridFS.
-    """
     if 'username' not in session:
         return redirect(url_for('login'))
     user = db.users.find_one({'username': session['username']})
@@ -768,11 +766,14 @@ def download_file(filename):
             mime, _ = mimetypes.guess_type(filename)
             if mime is None:
                 mime = 'application/octet-stream'
-            return send_file(BytesIO(decrypted_data), mimetype=mime, as_attachment=False, download_name=filename)
-        except Exception:
-            flash("Decryption failed.", "error")
+            # Encode the decrypted data in Base64
+            decrypted_data_base64 = base64.b64encode(decrypted_data).decode('utf-8')
+            # Render the file view template that extends base.html
+            return render_template("file_view.html", filename=filename, decrypted_data_base64=decrypted_data_base64, mime=mime, back_url=url_for('list_files'))
+        except Exception as e:
+            flash("Decryption failed: " + str(e), "error")
             return redirect(url_for('download_file', filename=filename))
-
+        
 @app.route('/share', methods=['GET', 'POST'])
 def share():
     """
@@ -899,12 +900,16 @@ def deny_access(notification_id):
     flash("Access request denied.", "success")
     return redirect(url_for('notifications'))
 
+import base64
+from io import BytesIO
+import mimetypes
+
 @app.route('/download_file_with_status_check/<filename>', methods=['GET', 'POST'])
 def download_file_with_status_check(filename):
     """
     For a shared file that has been approved, the receiver is prompted for their file password.
-    After verifying it, the file is decrypted using the stored sender's plaintext password (from shared_files)
-    and served with the correct MIME type determined by mimetypes.guess_type().
+    After verifying it, the file is decrypted using the sender's stored file password and
+    rendered within the base template.
     """
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -944,12 +949,69 @@ def download_file_with_status_check(filename):
                 mime, _ = mimetypes.guess_type(filename)
                 if mime is None:
                     mime = 'application/octet-stream'
-                return send_file(BytesIO(decrypted_data), mimetype=mime, as_attachment=False, download_name=filename)
+                # Encode the decrypted data in Base64 so it can be embedded as a data URL.
+                decrypted_data_base64 = base64.b64encode(decrypted_data).decode('utf-8')
+                # Render a template that extends your base layout.
+                return render_template("received_file_view.html",
+                                       filename=filename,
+                                       decrypted_data_base64=decrypted_data_base64,
+                                       mime=mime,
+                                       back_url=url_for('received_files'))
             except Exception as e:
                 flash("Decryption failed: " + str(e), "error")
                 return redirect(url_for('received_files'))
     else:
         abort(404)
+
+from flask import send_file, abort, flash, redirect, url_for, session, make_response
+from io import BytesIO
+import mimetypes
+
+@app.route('/download_actual_file/<filename>')
+def download_actual_file(filename):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user = db.users.find_one({'username': session['username']})
+    # Try fetching file metadata from user's own files
+    file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
+    if file_meta:
+        file_password = user.get('file_password')
+        if not file_password:
+            flash("File password not set.", "error")
+            return redirect(url_for('set_file_password'))
+        file_id = file_meta.get('gridfs_id')
+        try:
+            file_obj = fs.get(file_id)
+        except Exception:
+            abort(404)
+    else:
+        # Otherwise, check for a shared file
+        shared_file = db.shared_files.find_one({'filename': filename, 'recipient_username': session['username']})
+        if not shared_file:
+            flash("File not found.", "error")
+            return redirect(url_for('list_files'))
+        file_password = shared_file.get('sender_file_password')
+        file_obj = fs.find_one({"filename": filename, "owner": shared_file['sender']})
+        if not file_obj:
+            flash("File not found in storage.", "error")
+            return redirect(url_for('list_files'))
+    
+    encrypted_data = file_obj.read()
+    try:
+        decrypted_data = decrypt_data(encrypted_data, file_password)
+        mime, _ = mimetypes.guess_type(filename)
+        if mime is None:
+            mime = 'application/octet-stream'
+        return send_file(
+            BytesIO(decrypted_data),
+            mimetype=mime,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        flash("Decryption failed: " + str(e), "error")
+        return redirect(url_for('list_files'))
 
 @app.route('/logout')
 def logout():

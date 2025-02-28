@@ -963,7 +963,7 @@ def download_file_with_status_check(filename):
     else:
         abort(404)
 
-from flask import send_file, abort, flash, redirect, url_for, session, make_response
+from flask import send_file, abort, flash, redirect, url_for, session
 from io import BytesIO
 import mimetypes
 
@@ -973,7 +973,7 @@ def download_actual_file(filename):
         return redirect(url_for('login'))
     
     user = db.users.find_one({'username': session['username']})
-    # Try fetching file metadata from user's own files
+    # Try fetching the file from the user's own files first
     file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
     if file_meta:
         file_password = user.get('file_password')
@@ -983,7 +983,8 @@ def download_actual_file(filename):
         file_id = file_meta.get('gridfs_id')
         try:
             file_obj = fs.get(file_id)
-        except Exception:
+        except Exception as e:
+            print("Error fetching file:", e)
             abort(404)
     else:
         # Otherwise, check for a shared file
@@ -1000,18 +1001,34 @@ def download_actual_file(filename):
     encrypted_data = file_obj.read()
     try:
         decrypted_data = decrypt_data(encrypted_data, file_password)
-        mime, _ = mimetypes.guess_type(filename)
-        if mime is None:
-            mime = 'application/octet-stream'
-        return send_file(
-            BytesIO(decrypted_data),
-            mimetype=mime,
-            as_attachment=True,
-            download_name=filename
-        )
     except Exception as e:
         flash("Decryption failed: " + str(e), "error")
         return redirect(url_for('list_files'))
+    
+    mime, _ = mimetypes.guess_type(filename)
+    if mime is None:
+        mime = 'application/octet-stream'
+    
+    # Create a BytesIO stream for the decrypted data
+    file_stream = BytesIO(decrypted_data)
+    # Calculate the file size
+    file_stream.seek(0, 2)  # move to end of file
+    file_size = file_stream.tell()
+    file_stream.seek(0)     # reset to beginning
+
+    # Use send_file and explicitly set the Content-Length header
+    response = send_file(
+        file_stream,
+        mimetype=mime,
+        as_attachment=True,
+        download_name=filename
+    )
+    response.headers["Content-Length"] = file_size
+    return response
+
+
+
+
 
 @app.route('/logout')
 def logout():

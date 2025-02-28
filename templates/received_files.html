@@ -19,6 +19,7 @@
     {% for file in received_files %}
       <div class="received-files-file-card">
         <div class="received-files-file-icon">📄</div>
+        <div class="received-files-sender" style="color: green;">From: {{ file.sender }}</div>
         <div class="received-files-file-name">{{ file.filename }}</div>
         {% if file.status == 'pending' %}
           <div class="received-files-status-text">Status: Pending</div>

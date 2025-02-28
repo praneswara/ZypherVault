@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-
 {% block title %}View Received File - {{ filename }}{% endblock %}
-
 {% block content %}
 <div class="file-viewer-wrapper">
   <div class="file-viewer-header">
@@ -9,14 +7,37 @@
     <a href="#" id="download-btn" class="download-icon" data-filename="{{ filename }}">
       <i class="fa fa-download"></i>
     </a>
-
   </div>
-
   <div class="file-viewer-content">
-    <iframe src="data:{{ mime }};base64,{{ decrypted_data_base64 }}"></iframe>
+    {% if mime == 'application/pdf' %}
+      <!-- Use object tag for PDFs -->
+      <object id="pdfViewer" style="width:100%; height:100%; min-height:600px;" type="{{ mime }}">
+        <p>Your browser does not support inline PDFs.
+          <a id="fallback-link" href="#" target="_blank">Open PDF in a new tab</a>.
+        </p>
+      </object>
+      <script>
+        function base64ToBlob(base64, mime) {
+          var byteCharacters = atob(base64);
+          var byteNumbers = new Array(byteCharacters.length);
+          for (var i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          var byteArray = new Uint8Array(byteNumbers);
+          return new Blob([byteArray], {type: mime});
+        }
+        var base64Data = "{{ decrypted_data_base64|safe }}";
+        var mimeType = "{{ mime }}";
+        var blob = base64ToBlob(base64Data, mimeType);
+        var blobUrl = URL.createObjectURL(blob);
+        document.getElementById("pdfViewer").data = blobUrl;
+        document.getElementById("fallback-link").href = blobUrl;
+      </script>
+    {% else %}
+      <iframe src="data:{{ mime }};base64,{{ decrypted_data_base64 }}" frameborder="0" style="width:100%; height:100%; min-height:600px;"></iframe>
+    {% endif %}
   </div>
 </div>
-
 <div class="file-view-footer">
   <a href="{{ back_url }}">Back to Received Files</a>
 </div>

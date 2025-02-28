@@ -4,111 +4,298 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZypherVault - Secure File Storage</title>
-    <link
-      rel="icon"
-      type="image/jpg"
-      href="{{ url_for('static', filename='logo.jpg') }}"
-    />
-    <!-- Web App Manifest (For Android & Chrome) -->
-    <link
-      rel="manifest"
-      href="{{ url_for('static', filename='manifest.json') }}"
-    />
-
-    <!-- Favicon (For Browsers) -->
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="{{ url_for('static', filename='logo.jpg') }}"
-    />
-
-    <!-- Apple Touch Icon (For iOS Devices) -->
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="{{ url_for('static', filename='logo.jpg') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo.jpg') }}" />
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='logo.jpg') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='logo.jpg') }}" />
+    <!-- FontAwesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+      /* Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      /* Global Body Styles */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #102037;
+        color: #fff;
+        padding-top: 70px; /* Reserve space for fixed navbar */
+      }
+      /* Navbar (Fixed Top) */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-color: #0c1e31;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        z-index: 1000;
+        flex-wrap: nowrap; /* Ensure single row */
+      }
+      .navbar .logo-container {
+        display: flex;
+        align-items: center;
+      }
+      .navbar .logo {
+        height: 40px;
+        margin-right: 10px;
+      }
+      .navbar .app-name {
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .navbar .app-name span:first-child {
+        color: #ed4039;
+      }
+      .navbar .app-name span:last-child {
+        color: #00a5df;
+      }
+      .navbar .nav-links {
+        display: flex;
+        flex-wrap: nowrap; /* Prevent wrapping */
+      }
+      .navbar .nav-links a {
+        margin-left: 15px;
+        padding: 8px 12px;
+        background-color: transparent;
+        border: 1px solid #00a5df;
+        border-radius: 4px;
+        color: #00a5df;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      .navbar .nav-links a:hover {
+        background-color: #00a5df;
+        color: #fff;
+      }
+      /* Main Content */
+      .container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+      .container h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 32px;
+      }
+      .container p,
+      .container li {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .container section {
+        margin-bottom: 40px;
+      }
+      .container section h2 {
+        margin-bottom: 10px;
+        font-size: 22px;
+        color: #00a5df;
+      }
+      .container section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      .container section ul li {
+        margin-bottom: 10px;
+        padding-left: 20px;
+        position: relative;
+      }
+      .container section ul li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #ed4039;
+        font-size: 20px;
+        line-height: 1;
+      }
+      /* Footer */
+      footer.footer {
+        background-color: #0c1e31;
+        padding: 20px;
+        text-align: center;
+        margin-top: 40px;
+      }
+      footer.footer .footer-nav {
+        display: flex;
+        flex-wrap: nowrap; /* Keep items on one row */
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      footer.footer .footer-nav a {
+        margin: 0 10px;
+        color: #00a5df;
+        text-decoration: none;
+        white-space: nowrap; /* Prevent text from wrapping */
+      }
+      footer.footer .footer-nav a:hover {
+        text-decoration: underline;
+        color: #ed4039;
+      }
+      footer.footer .social {
+        margin-top: 10px;
+      }
+      footer.footer .social a {
+        margin: 0 5px;
+        color: #00a5df;
+        font-size: 20px;
+        text-decoration: none;
+      }
+      footer.footer .social a:hover {
+        color: #ed4039;
+      }
+      footer.footer p {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+      /* Responsive Adjustments for tablets and small desktops */
+      @media (max-width: 768px) {
+        .navbar .app-name {
+          font-size: 20px;
+        }
+        .navbar .nav-links a {
+          font-size: 14px;
+          padding: 6px 10px;
+        }
+        .container {
+          padding: 15px;
+        }
+        .container h1 {
+          font-size: 28px;
+        }
+        .container section h2 {
+          font-size: 20px;
+        }
+        .container p,
+        .container li {
+          font-size: 14px;
+        }
+        footer.footer {
+          padding: 15px;
+          font-size: 12px;
+        }
+        footer.footer .social a {
+          font-size: 18px;
+        }
+      }
+      /* Additional Responsive Adjustments for mobile devices */
+      @media (max-width: 480px) {
+        .navbar {
+          padding: 10px;
+        }
+        .navbar .logo {
+          height: 30px;
+          margin-right: 5px;
+        }
+        .navbar .app-name {
+          font-size: 18px;
+        }
+        .navbar .nav-links a {
+          font-size: 12px;
+          padding: 4px 8px;
+          margin-left: 5px;
+          margin-right: 5px;
+        }
+        .container {
+          padding: 10px;
+          margin: 10px auto;
+        }
+        .container h1 {
+          font-size: 24px;
+        }
+        .container section h2 {
+          font-size: 18px;
+        }
+        .container p,
+        .container li {
+          font-size: 12px;
+        }
+        footer.footer {
+          padding: 10px;
+        }
+        footer.footer p {
+          font-size: 10px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Navbar -->
+    <!-- Fixed Navbar -->
     <nav class="navbar">
       <div class="logo-container">
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="ZypherVault Logo"
-          class="logo"
-        />
-        <span class="app-name">ZypherVault</span>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="ZypherVault Logo" class="logo" />
+        <span class="app-name">
+          <span>Zypher</span><span>Vault</span>
+        </span>
       </div>
       <div class="nav-links">
-        <a href="{{ url_for('register') }}" class="btn">Register</a>
-        <a href="{{ url_for('login') }}" class="btn">Login</a>
-        <button class="toggle-btn" id="theme-toggle">🌙</button>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('login') }}">Login</a>
       </div>
     </nav>
 
     <!-- Main Content -->
-    <div class="container">
-      <h1>Welcome to ZypherVault</h1>
-      <p>
-        ZypherVault is your **secure and encrypted cloud-based file storage
-        solution**, designed for seamless file sharing and access control.
-      </p>
+<div class="container">
+  <h1>Welcome to ZypherVault</h1>
+  <p>
+    ZypherVault is your secure and encrypted cloud-based file storage solution, designed for seamless file sharing and access control. Our innovative platform is built to meet the needs of both individuals and businesses, offering robust security features without sacrificing ease-of-use.
+  </p>
 
-      <!-- About Section -->
-      <section class="about">
-        <h2>Why Choose ZypherVault?</h2>
-        <p>
-          Our platform ensures that your files remain **safe, private, and
-          accessible only to authorized users**. Whether you're an individual or
-          a business, we provide advanced security features for **hassle-free
-          file management**.
-        </p>
-      </section>
+  <!-- About Section -->
+  <section class="about">
+    <h2>Why Choose ZypherVault?</h2>
+    <p>
+      At ZypherVault, we are committed to providing unparalleled security and privacy for your digital assets. Our advanced technology ensures that your files are always protected and accessible only to authorized users. Whether you're storing sensitive documents, family photos, or important business data, ZypherVault offers a reliable and user-friendly experience.
+    </p>
+  </section>
 
-      <!-- Features Section -->
-      <section class="features">
-        <h2>Key Features</h2>
-        <ul>
-          <li>
-            🔒 **AES-256 Encryption** – Protects files from unauthorized access.
-          </li>
-          <li>📁 **Cloud Storage** – Access your files anytime, anywhere.</li>
-          <li>
-            🔄 **File Sharing & Access Control** – Manage who can view or
-            download your data.
-          </li>
-          <li>
-            📊 **Activity Logs & Notifications** – Track uploads, downloads, and
-            access requests.
-          </li>
-          <li>🚀 **Fast & Reliable** – Optimized for speed and efficiency.</li>
-        </ul>
-      </section>
+  <!-- Features Section -->
+  <section class="features">
+    <h2>Key Features</h2>
+    <ul>
+      <li>🔒 <strong>AES-256 Encryption</strong> – Protects files from unauthorized access with military-grade encryption.</li>
+      <li>📁 <strong>Cloud Storage</strong> – Access your files anytime, anywhere with our robust cloud infrastructure.</li>
+      <li>🔄 <strong>File Sharing & Access Control</strong> – Easily manage who can view or download your data with customizable permissions.</li>
+      <li>📊 <strong>Activity Logs & Notifications</strong> – Stay informed with detailed logs and real-time alerts for any file activity.</li>
+      <li>🚀 <strong>Fast & Reliable</strong> – Experience optimized performance for swift file uploads and downloads.</li>
+      <li>🔐 <strong>Multi-Factor Authentication</strong> – Enhance account security by requiring additional verification methods.</li>
+      <li>📈 <strong>Scalable Solutions</strong> – Whether you're an individual or a growing business, our platform scales with your needs.</li>
+    </ul>
+  </section>
 
-      <!-- Security Section -->
-      <section class="security">
-        <h2>Security & Privacy</h2>
-        <p>
-          At ZypherVault, **security is our top priority**. We use **end-to-end
-          encryption, multi-factor authentication (MFA), and granular permission
-          controls** to keep your files protected.
-        </p>
-      </section>
-    </div>
+  <!-- Security Section -->
+  <section class="security">
+    <h2>Security & Privacy</h2>
+    <p>
+      Your security is our top priority. At ZypherVault, we use state-of-the-art encryption technologies combined with robust privacy measures to ensure that your data remains confidential and secure. Our platform complies with industry standards and regulations, making it a trusted choice for managing sensitive information.
+    </p>
+  </section>
+
 
     <!-- Footer -->
     <footer class="footer">
-      <p>
-        <a href="#">Contact</a> | <a href="#">Support</a> |
-        <a href="#">Terms & Conditions</a>
-      </p>
+      <div class="footer-nav">
+        <a href="#">Contact Us</a>
+        <a href="#">Support</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="social">
+        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <p>&copy; {{ current_year }} ZypherVault. All rights reserved.</p>
     </footer>
   </body>
 </html>

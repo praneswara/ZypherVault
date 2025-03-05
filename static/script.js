@@ -66,5 +66,32 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+// Function to show the loading overlay
+function showLoadingOverlay() {
+  document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+// Add event listeners to links and forms that trigger a page load
+document.addEventListener('DOMContentLoaded', function() {
+  // For all links that lead to a new page
+  var links = document.querySelectorAll('a');
+  links.forEach(function(link) {
+    // Optionally, you can check if the link has a specific class, e.g., 'show-loader'
+    link.addEventListener('click', function(event) {
+      // You may want to check if the link's target is _blank, in which case skip
+      if (link.target !== '_blank') {
+        showLoadingOverlay();
+      }
+    });
+  });
+
+  // For all forms submissions
+  var forms = document.querySelectorAll('form');
+  forms.forEach(function(form) {
+    form.addEventListener('submit', function(event) {
+      showLoadingOverlay();
+    });
+  });
+});
 
 

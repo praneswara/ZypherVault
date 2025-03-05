@@ -14,7 +14,10 @@
       href="{{ url_for('static', filename='styles.css') }}"
     />
     <!-- FontAwesome for Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
 
     <!-- Include any common head elements here -->
   </head>
@@ -30,7 +33,8 @@
           class="logo"
         />
         <span class="app-name">
-          <span style="color: #ed4039;">Zypher</span><span style="color: #00a5df;">Vault</span>
+          <span style="color: #ed4039">Zypher</span
+          ><span style="color: #00a5df">Vault</span>
         </span>
       </div>
       <div class="navbar-right">
@@ -54,7 +58,9 @@
         <li><a href="{{ url_for('received_files') }}">Received Files</a></li>
         <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
         <li>
-          <a href="{{ url_for('reset_file_password_options') }}">Reset File Password</a>
+          <a href="{{ url_for('reset_file_password_options') }}"
+            >Reset File Password</a
+          >
         </li>
         <li class="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
       </ul>
@@ -66,6 +72,10 @@
       <!-- Page-specific content will go here -->
       {% endblock %}
     </main>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" style="display: none">
+      <div class="spinner"></div>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>

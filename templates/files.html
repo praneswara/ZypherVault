@@ -1,29 +1,28 @@
-{% extends "base.html" %}
-
-{% block title %}ZypherVault - My Files{% endblock %}
-
+{% extends "base.html" %} {% block title %}ZypherVault - My Files{% endblock %}
 {% block content %}
 <div class="files-page-wrapper">
   <div class="files-page-container">
     <h1>My Files</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="files-page-messages">
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul class="files-page-messages">
+      {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
     <div class="files-page-file-grid">
       {% for file in user_files %}
       <div class="files-page-file-card">
         <div class="files-page-file-icon">📄</div>
         <div class="files-page-file-name">{{ file.filename }}</div>
-        <a href="{{ url_for('download_file', filename=file.filename) }}" class="files-page-file-link">
-          View / Download
-        </a>
-        <form action="{{ url_for('soft_delete_file', file_id=file._id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this file? It will be moved to Restore Items for 30 days.');">
+        <a href="{{ url_for('view_file', filename=file.filename) }}"class="files-page-file-link">View</a>
+        <a href="{{ url_for('download_file', filename=file.filename) }}"class="files-page-file-link">Download</a>
+        <form
+          action="{{ url_for('soft_delete_file', file_id=file._id) }}"
+          method="post"
+          onsubmit="return confirm('Are you sure you want to delete this file? It will be moved to Restore Items for 30 days.');"
+        >
           <button type="submit" class="files-page-btn-delete">Delete</button>
         </form>
       </div>

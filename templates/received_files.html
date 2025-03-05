@@ -27,7 +27,8 @@
         {% elif file.status == 'in_progress' %}
           <div class="received-files-status-text">Status: In Progress</div>
         {% elif file.status == 'approved' %}
-          <a href="{{ url_for('download_file_with_status_check', filename=file.filename) }}" class="received-files-file-link">View / Download</a>
+          <a href="{{ url_for('download_file_with_status_check', filename=file.filename) }}" class="received-files-file-link">View</a>
+          <a href="{{ url_for('download_received_file', filename=file.filename) }}" class="received-files-file-link">Download</a>
         {% endif %}
       </div>
     {% endfor %}

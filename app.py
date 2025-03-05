@@ -17,7 +17,7 @@ from io import BytesIO
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_file, flash, abort, send_from_directory
+    session, send_file, flash, abort, Response, send_from_directory
 )
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -740,25 +740,30 @@ def delete_all_restore():
     return redirect(url_for('restore_items'))
 
 
-@app.route('/download/<filename>', methods=['GET', 'POST'])
-def download_file(filename):
+@app.route('/view_file/<filename>', methods=['GET', 'POST'])
+def view_file(filename):
     if 'username' not in session:
         return redirect(url_for('login'))
+        
     user = db.users.find_one({'username': session['username']})
     if 'file_password' not in user:
         flash("File password not set.", "error")
         return redirect(url_for('set_file_password'))
+    
     if request.method == 'GET':
-        return render_template('enter_file_password.html', filename=filename, action_url=url_for('download_file', filename=filename))
+        # Show the password entry form
+        return render_template('enter_file_password.html', filename=filename, action_url=url_for('view_file', filename=filename))
     else:
         file_password = request.form.get('file_password')
         if not check_password_hash(user['file_password'], file_password):
             flash("Incorrect file password.", "error")
-            return redirect(url_for('download_file', filename=filename))
+            return redirect(url_for('view_file', filename=filename))
+        
         file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
         if not file_meta:
             flash("File metadata not found.", "error")
             return redirect(url_for('list_files'))
+            
         file_id = file_meta['gridfs_id']
         encrypted_data = fs.get(file_id).read()
         try:
@@ -766,13 +771,93 @@ def download_file(filename):
             mime, _ = mimetypes.guess_type(filename)
             if mime is None:
                 mime = 'application/octet-stream'
-            # Encode the decrypted data in Base64
+            # Encode to Base64 for embedding
             decrypted_data_base64 = base64.b64encode(decrypted_data).decode('utf-8')
-            # Render the file view template that extends base.html
             return render_template("file_view.html", filename=filename, decrypted_data_base64=decrypted_data_base64, mime=mime, back_url=url_for('list_files'))
         except Exception as e:
             flash("Decryption failed: " + str(e), "error")
-            return redirect(url_for('download_file', filename=filename))
+            return redirect(url_for('view_file', filename=filename))
+
+@app.route('/download_file/<filename>', methods=['GET', 'POST'])
+def download_file(filename):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user = db.users.find_one({'username': session['username']})
+    if not user or 'file_password' not in user:
+        flash("File password not set.", "error")
+        return redirect(url_for('set_file_password'))
+    
+    # GET: Show password entry form.
+    if request.method == 'GET':
+        return render_template(
+            'enter_file_password.html', 
+            filename=filename, 
+            action_url=url_for('download_file', filename=filename)
+        )
+    
+    # POST: Verify submitted password.
+    file_password = request.form.get('file_password')
+    if not check_password_hash(user['file_password'], file_password):
+        flash("Incorrect file password.", "error")
+        return redirect(url_for('download_file', filename=filename))
+    
+    # Password is correct; store it temporarily.
+    session['verified_file_password'] = file_password
+    
+    # Render an intermediate page that triggers the download and then redirects.
+    return render_template(
+        'trigger_download.html', 
+        filename=filename, 
+        return_url=url_for('list_files')
+    )
+
+
+@app.route('/download_file_start/<filename>')
+def download_file_start(filename):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    # Retrieve the verified password from the session.
+    file_password = session.get('verified_file_password')
+    if not file_password:
+        flash("Password not verified.", "error")
+        return redirect(url_for('download_file', filename=filename))
+    
+    file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
+    if not file_meta:
+        flash("File metadata not found.", "error")
+        return redirect(url_for('list_files'))
+    
+    file_id = file_meta['gridfs_id']
+    try:
+        file_obj = fs.get(file_id)
+    except Exception as e:
+        print("Error fetching file:", e)
+        abort(404)
+    
+    encrypted_data = file_obj.read()
+    try:
+        decrypted_data = decrypt_data(encrypted_data, file_password)
+    except Exception as e:
+        flash("Decryption failed: " + str(e), "error")
+        return redirect(url_for('download_file', filename=filename))
+    
+    mime, _ = mimetypes.guess_type(filename)
+    if mime is None:
+        mime = 'application/octet-stream'
+    
+    # Clear the verified password from the session.
+    session.pop('verified_file_password', None)
+    
+    # Create a BytesIO stream and send the file as an attachment.
+    from io import BytesIO  # ensure this is imported at the top
+    file_stream = BytesIO(decrypted_data)
+    file_stream.seek(0)
+    return send_file(file_stream, mimetype=mime, as_attachment=True, download_name=filename)
+
+
+
         
 @app.route('/share', methods=['GET', 'POST'])
 def share():
@@ -900,9 +985,6 @@ def deny_access(notification_id):
     flash("Access request denied.", "success")
     return redirect(url_for('notifications'))
 
-import base64
-from io import BytesIO
-import mimetypes
 
 @app.route('/download_file_with_status_check/<filename>', methods=['GET', 'POST'])
 def download_file_with_status_check(filename):
@@ -963,56 +1045,97 @@ def download_file_with_status_check(filename):
     else:
         abort(404)
 
-@app.route('/download_actual_file/<filename>')
-def download_actual_file(filename):
+@app.route('/download_received_file/<filename>', methods=['GET', 'POST'])
+def download_received_file(filename):
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    user = db.users.find_one({'username': session['username']})
-    # Try fetching the file from the user's own files first
-    file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
-    if file_meta:
-        file_password = user.get('file_password')
-        if not file_password:
-            flash("File password not set.", "error")
-            return redirect(url_for('set_file_password'))
-        file_id = file_meta.get('gridfs_id')
-        try:
-            file_obj = fs.get(file_id)
-        except Exception as e:
-            print("Error fetching file:", e)
-            abort(404)
-    else:
-        # Otherwise, check for a shared file
-        shared_file = db.shared_files.find_one({'filename': filename, 'recipient_username': session['username']})
-        if not shared_file:
-            flash("File not found.", "error")
-            return redirect(url_for('list_files'))
-        file_password = shared_file.get('sender_file_password')
-        file_obj = fs.find_one({"filename": filename, "owner": shared_file['sender']})
-        if not file_obj:
-            flash("File not found in storage.", "error")
-            return redirect(url_for('list_files'))
+    # Look up the shared file (for received files, we always use the shared_files collection)
+    shared_file = db.shared_files.find_one({
+        'filename': filename,
+        'recipient_username': session['username']
+    })
+    if not shared_file:
+        flash("File not found.", "error")
+        return redirect(url_for('received_files'))
+    
+    # Ensure that the shared file is approved.
+    status = shared_file.get('status')
+    if status != 'approved':
+        flash("File not approved for download.", "error")
+        return redirect(url_for('received_files'))
+    
+    # GET: Render the password entry form for the receiver.
+    if request.method == 'GET':
+        return render_template('enter_receiver_password.html',
+                               filename=filename,
+                               action_url=url_for('download_received_file', filename=filename))
+    
+    # POST: Process the submitted receiver password.
+    receiver_file_password = request.form.get('file_password')
+    receiver = db.users.find_one({'username': session['username']})
+    if not receiver or 'file_password' not in receiver or not check_password_hash(receiver['file_password'], receiver_file_password):
+        flash("Incorrect receiver file password.", "error")
+        return redirect(url_for('download_received_file', filename=filename))
+    
+    # Password verified: store it temporarily in session.
+    session['verified_receiver_password'] = receiver_file_password
+    
+    # Render the trigger page that will auto-start the download and then redirect.
+    return render_template('trigger_rdownload.html',
+                           filename=filename,
+                           return_url=url_for('received_files'),
+                           download_url=url_for('download_received_file_start', filename=filename))
+
+
+@app.route('/download_received_file_start/<filename>')
+def download_received_file_start(filename):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    # Retrieve the verified receiver password from the session.
+    verified_password = session.get('verified_receiver_password')
+    if not verified_password:
+        flash("Password not verified.", "error")
+        return redirect(url_for('download_received_file', filename=filename))
+    
+    # Look up the shared file.
+    shared_file = db.shared_files.find_one({
+        'filename': filename,
+        'recipient_username': session['username']
+    })
+    if not shared_file:
+        flash("File not found.", "error")
+        return redirect(url_for('received_files'))
+    
+    # Retrieve the encrypted file from GridFS using the sender info.
+    file_obj = fs.find_one({"filename": filename, "owner": shared_file['sender']})
+    if not file_obj:
+        flash("File not found in storage.", "error")
+        return redirect(url_for('received_files'))
     
     encrypted_data = file_obj.read()
     try:
-        decrypted_data = decrypt_data(encrypted_data, file_password)
+        # Use the sender's file password (stored in shared_file) to decrypt.
+        sender_file_password = shared_file.get('sender_file_password')
+        decrypted_data = decrypt_data(encrypted_data, sender_file_password)
     except Exception as e:
         flash("Decryption failed: " + str(e), "error")
-        return redirect(url_for('list_files'))
+        return redirect(url_for('download_received_file', filename=filename))
     
     mime, _ = mimetypes.guess_type(filename)
     if mime is None:
         mime = 'application/octet-stream'
     
-    # Create a BytesIO stream for the decrypted data
+    from io import BytesIO
     file_stream = BytesIO(decrypted_data)
-    # Calculate the file size
-    file_stream.seek(0, 2)  # move to end of file
+    file_stream.seek(0, 2)
     file_size = file_stream.tell()
-    file_stream.seek(0)     # reset to beginning
-
-    # Use send_file and explicitly set the Content-Length header
+    file_stream.seek(0)
+    
+    # Clear the verified password from session.
+    session.pop('verified_receiver_password', None)
+    
     response = send_file(
         file_stream,
         mimetype=mime,
@@ -1021,10 +1144,6 @@ def download_actual_file(filename):
     )
     response.headers["Content-Length"] = file_size
     return response
-
-
-
-
 
 @app.route('/logout')
 def logout():

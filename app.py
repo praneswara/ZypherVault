@@ -963,64 +963,64 @@ def download_file_with_status_check(filename):
     else:
         abort(404)
 
-# @app.route('/download_actual_file/<filename>')
-# def download_actual_file(filename):
-#     if 'username' not in session:
-#         return redirect(url_for('login'))
+@app.route('/download_actual_file/<filename>')
+def download_actual_file(filename):
+    if 'username' not in session:
+        return redirect(url_for('login'))
     
-#     user = db.users.find_one({'username': session['username']})
-#     # Try fetching the file from the user's own files first
-#     file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
-#     if file_meta:
-#         file_password = user.get('file_password')
-#         if not file_password:
-#             flash("File password not set.", "error")
-#             return redirect(url_for('set_file_password'))
-#         file_id = file_meta.get('gridfs_id')
-#         try:
-#             file_obj = fs.get(file_id)
-#         except Exception as e:
-#             print("Error fetching file:", e)
-#             abort(404)
-#     else:
-#         # Otherwise, check for a shared file
-#         shared_file = db.shared_files.find_one({'filename': filename, 'recipient_username': session['username']})
-#         if not shared_file:
-#             flash("File not found.", "error")
-#             return redirect(url_for('list_files'))
-#         file_password = shared_file.get('sender_file_password')
-#         file_obj = fs.find_one({"filename": filename, "owner": shared_file['sender']})
-#         if not file_obj:
-#             flash("File not found in storage.", "error")
-#             return redirect(url_for('list_files'))
+    user = db.users.find_one({'username': session['username']})
+    # Try fetching the file from the user's own files first
+    file_meta = db.files.find_one({'username': session['username'], 'filename': filename})
+    if file_meta:
+        file_password = user.get('file_password')
+        if not file_password:
+            flash("File password not set.", "error")
+            return redirect(url_for('set_file_password'))
+        file_id = file_meta.get('gridfs_id')
+        try:
+            file_obj = fs.get(file_id)
+        except Exception as e:
+            print("Error fetching file:", e)
+            abort(404)
+    else:
+        # Otherwise, check for a shared file
+        shared_file = db.shared_files.find_one({'filename': filename, 'recipient_username': session['username']})
+        if not shared_file:
+            flash("File not found.", "error")
+            return redirect(url_for('list_files'))
+        file_password = shared_file.get('sender_file_password')
+        file_obj = fs.find_one({"filename": filename, "owner": shared_file['sender']})
+        if not file_obj:
+            flash("File not found in storage.", "error")
+            return redirect(url_for('list_files'))
     
-#     encrypted_data = file_obj.read()
-#     try:
-#         decrypted_data = decrypt_data(encrypted_data, file_password)
-#     except Exception as e:
-#         flash("Decryption failed: " + str(e), "error")
-#         return redirect(url_for('list_files'))
+    encrypted_data = file_obj.read()
+    try:
+        decrypted_data = decrypt_data(encrypted_data, file_password)
+    except Exception as e:
+        flash("Decryption failed: " + str(e), "error")
+        return redirect(url_for('list_files'))
     
-#     mime, _ = mimetypes.guess_type(filename)
-#     if mime is None:
-#         mime = 'application/octet-stream'
+    mime, _ = mimetypes.guess_type(filename)
+    if mime is None:
+        mime = 'application/octet-stream'
     
-#     # Create a BytesIO stream for the decrypted data
-#     file_stream = BytesIO(decrypted_data)
-#     # Calculate the file size
-#     file_stream.seek(0, 2)  # move to end of file
-#     file_size = file_stream.tell()
-#     file_stream.seek(0)     # reset to beginning
+    # Create a BytesIO stream for the decrypted data
+    file_stream = BytesIO(decrypted_data)
+    # Calculate the file size
+    file_stream.seek(0, 2)  # move to end of file
+    file_size = file_stream.tell()
+    file_stream.seek(0)     # reset to beginning
 
-#     # Use send_file and explicitly set the Content-Length header
-#     response = send_file(
-#         file_stream,
-#         mimetype=mime,
-#         as_attachment=True,
-#         download_name=filename
-#     )
-#     response.headers["Content-Length"] = file_size
-#     return response
+    # Use send_file and explicitly set the Content-Length header
+    response = send_file(
+        file_stream,
+        mimetype=mime,
+        as_attachment=True,
+        download_name=filename
+    )
+    response.headers["Content-Length"] = file_size
+    return response
 
 
 
